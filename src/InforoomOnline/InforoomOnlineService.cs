@@ -17,25 +17,26 @@ namespace InforoomOnline
 		{
 			try
 			{
+				log4net.Config.XmlConfigurator.Configure();
 				DataSet result = null;
 				With.Transaction(
 					delegate(MySqlHelper helper)
 						{
 							Dictionary<string, string> columnNameMapping = new Dictionary<string, string>();
-							columnNameMapping.Add("offers.Id", "OfferId");
-							columnNameMapping.Add("offers.PriceCode", "PriceCode");
-							columnNameMapping.Add("offers.FullCode", "FullCode");
-							columnNameMapping.Add("s.synonym", "Name");
-							columnNameMapping.Add("c.CodeCr", "Code");
-							columnNameMapping.Add("c.Code", "CodeCr");
-							columnNameMapping.Add("c.Unit", "Unit");
-							columnNameMapping.Add("c.Volume", "Volume");
-							columnNameMapping.Add("c.Quantity", "Quantity");
-							columnNameMapping.Add("c.Note", "Note");
-							columnNameMapping.Add("c.Period", "Period");
-							columnNameMapping.Add("c.Doc", "Doc");
-							columnNameMapping.Add("c.Junk", "Junk");
-							columnNameMapping.Add("offers.Cost", "Cost");
+							columnNameMapping.Add("offers.Id", "offerid");
+							columnNameMapping.Add("offers.PriceCode", "pricecode");
+							columnNameMapping.Add("offers.FullCode", "fullcode");
+							columnNameMapping.Add("s.synonym", "name");
+							columnNameMapping.Add("c.CodeCr", "code");
+							columnNameMapping.Add("c.Code", "codecr");
+							columnNameMapping.Add("c.Unit", "unit");
+							columnNameMapping.Add("c.Volume", "volume");
+							columnNameMapping.Add("c.Quantity", "quantity");
+							columnNameMapping.Add("c.Note", "note");
+							columnNameMapping.Add("c.Period", "period");
+							columnNameMapping.Add("c.Doc", "doc");
+							columnNameMapping.Add("c.Junk", "junk");
+							columnNameMapping.Add("offers.Cost", "cost");
 
 							ValidateFieldNames(columnNameMapping, rangeField);
 							ValidateFieldNames(columnNameMapping, sortField);
@@ -53,9 +54,8 @@ namespace InforoomOnline
 								.AddParameter("?FreshOnly", false)
 								.Execute();
 
-							StringBuilder commandText =
-								new StringBuilder(
-									@"
+							SqlBuilder builder = SqlBuilder
+								.ForCommandTest(@"
 SELECT	offers.Id as OfferId,
 		offers.PriceCode,
 		offers.FullCode,
@@ -74,30 +74,61 @@ FROM core as offers
     JOIN farm.core0 as c on c.id = offers.id
 		JOIN farm.synonym s on c.synonymcode = s.synonymcode");
 
-							SqlBuilder builder = SqlBuilder
-								.ForCommandTest(commandText);
-
 							foreach (KeyValuePair<string, List<string>> pair in groupedValues)
 								builder.AddCriteria(Utils.StringArrayToQuery(pair.Value, columnNameMapping[pair.Key]));
 
 							builder
-								.AddOrder(sortField, sortOrder)
+								.AddOrderMultiColumn(sortField, sortOrder)
 								.Limit(limit, selStart);
 
-							result = helper.Fill(commandText.ToString());
+							result = helper.Fill(builder.GetSql());
 						});
 				return result;
 			}
 			catch(Exception ex)
 			{
 				_log.Error("", ex);
-				return null;
+				throw;
 			}
 		}
 
 		public DataSet GetPriceList(string[] firmName)
 		{
-			return null;
+			DataSet result = null;
+			With.Transaction(
+				delegate(MySqlHelper helper)
+					{
+						SqlBuilder builder = SqlBuilder
+							.ForCommandTest(@"
+call GetPrices(?ClientCode);
+
+select	p.PriceCode as PriceCode,
+		p.PriceName as PriceName,
+		p.PriceDate as PriceDate,
+		rd.ContactInfo,
+		rd.OperativeInfo,
+		p.PublicUpCost as PublicUpCost,
+  		p.DisabledByClient,
+		cd.ShortName as FirmShortName,
+		cd.FullName as FirmFullName,
+		rd.SupportPhone as RegionPhone,
+		(select c.contactText
+        from contacts.contact_groups cg
+          join contacts.contacts c on cg.Id = c.ContactOwnerId
+        where cd.ContactGroupOwnerId = cg.ContactGroupOwnerId
+              and cg.Type = 0
+              and c.Type = 1
+        limit 1) as Phone,
+		cd.Adress as Address
+from prices p
+	join usersettings.clientsdata cd on p.firmcode = cd.firmcode
+		join usersettings.regionaldata rd on rd.firmcode = cd.firmcode and rd.regioncode = p.regioncode")
+							.AddCriteria(Utils.StringArrayToQuery(firmName, "cd.ShortName"))
+							.AddOrder("cd.ShortName", null);
+
+						result = helper.Fill(builder.GetSql());
+					});
+			return result;
 		}
 
 		public DataSet GetNamesFromCatalog(string[] name, string[] form, bool offerOnly, int limit, int selStart)
@@ -116,8 +147,8 @@ FROM core as offers
 			int i = 0;
 			foreach (string field in fields)
 			{
-				if (!result.ContainsKey(field))
-					result.Add(field, new List<string>());
+				if (!result.ContainsKey(field.ToLower()))
+					result.Add(field.ToLower(), new List<string>());
 				result[field].Add(values[i]);
 				i++;
 			}
@@ -128,7 +159,7 @@ FROM core as offers
 											   IEnumerable<string> fieldsToValidate)
 		{
 			foreach (string fieldName in fieldsToValidate)
-				if (!mapping.ContainsKey(fieldName))
+				if (!mapping.ContainsKey(fieldName.ToLower()))
 					throw new Exception(String.Format("Не найдено сопоставление для поля {0}", fieldName));
 		}
 
@@ -140,9 +171,11 @@ FROM core as offers
 					throw new Exception(String.Format("Не верный порядок сортировки {0}", sortDirection));
 		}
 
-		private static uint GetClientCode(MySqlHelper helper)
+		private uint GetClientCode(MySqlHelper helper)
 		{
-			string userName = ServiceSecurityContext.Current.PrimaryIdentity.Name.Replace(@"analit\", "");
+			string userName = ServiceSecurityContext.Current.PrimaryIdentity.Name.Replace(@"ANALIT\", "");
+			
+			_log.Error(userName);
 
 			return helper.Command(@"
 SELECT clientcode 
