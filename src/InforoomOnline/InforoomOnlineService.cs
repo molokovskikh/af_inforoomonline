@@ -9,7 +9,6 @@ using log4net;
 
 namespace InforoomOnline
 {
-	[AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Required)]
 	public class InforoomOnlineService : IInforoomOnlineService
 	{
 		private readonly ILog _log = LogManager.GetLogger(typeof (InforoomOnlineService));
