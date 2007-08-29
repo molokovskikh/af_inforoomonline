@@ -1,0 +1,76 @@
+﻿<?xml version="1.0"?>
+<project name="MyProject" default="compile" basedir=".">
+
+	<property name="ProjectName" value="InforoomOnline" />
+	<property name="VssDbPath" value="\\offdc\VSS\Inforoom\srcsafe.ini" />
+	<property name="VssPath" value="$/inforoom/kvasov/InforoomOnline/release/" />
+	<property name="ReleasePath" value="..\release\" />
+		
+
+	<target name="compile">
+
+		<loadtasks assembly="D:\Tools\nantcontrib-0.85\bin\NAnt.Contrib.Tasks.dll" />
+
+           <vsscheckout 
+                  username="${User}"
+                  password="${Password}" 
+                  localpath="${ReleasePath}"
+                  recursive="true"
+                  writable="true"
+                  dbpath="${VssDbPath}"
+                  path="${VssPath}" 
+		/>
+
+		<delete>
+            <fileset basedir=".\${ProjectName}\bin\Release\">
+				<include name="**.*"/>
+			</fileset>			
+		</delete>
+
+	      <msbuild project="${ProjectName}.sln">
+			<arg value="/property:Configuration=release" />                                  
+			<arg value="/t:Rebuild" />
+	      </msbuild>
+
+		<delete>
+            <fileset basedir="${ReleasePath}">
+				<include name="**.*"/>
+				<exclude name="**.scc" />
+			</fileset>			
+		</delete>
+
+		<copy todir="${ReleasePath}bin\">
+			<fileset basedir=".\${ProjectName}\bin\Release\">
+				<include name="**.*"/>
+			</fileset>
+		</copy>
+
+		<copy 
+			file=".\${ProjectName}\InforoomOnlineService.svc"
+			tofile="${ReleasePath}InforoomOnlineService.svc"
+		/>
+		
+		<copy 
+			file=".\${ProjectName}\Web.Release.config"
+			tofile="${ReleasePath}Web.config"
+		/>
+
+		<vssadd dbpath="${VssDbPath}" username="${User}" password="${Password}" path="${VssPath}">
+                  <fileset basedir="${ReleasePath}">
+				<include name="**.*"/>
+				<exclude name="**.scc" />
+			</fileset>
+		</vssadd>
+
+		<vsscheckin 
+					username="${User}"
+					password="${Password}" 
+					localpath="${ReleasePath}"
+					recursive="true"
+					writable="true"
+					dbpath="${VssDbPath}"
+					path="${VssPath}" 
+					comment="Build script checkin"
+		/> 
+	</target>	
+</project>
