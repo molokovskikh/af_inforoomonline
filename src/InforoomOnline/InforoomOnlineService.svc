@@ -1,1 +1,2 @@
-﻿<%@ServiceHost language=c# Debug="true" Service="InforoomOnline.InforoomOnlineService" %>
+﻿<% @ServiceHost Service="InforoomOnlineService" 
+	Factory="InforoomOnline.TestHostFactory, InforoomOnline" %>
