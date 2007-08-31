@@ -3,13 +3,38 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InforoomOnline", "InforoomOnline\InforoomOnline.csproj", "{C5D0894B-BB0F-4B87-9568-915381642F58}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{0AD491B8-7584-40E8-8E58-682737CF1284}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.MySql", "..\..\Common.MySql\src\Common.MySql\Common.MySql.csproj", "{8A680813-C83B-497A-85E6-E8F07B7D7650}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.MySql.Tests", "..\..\Common.MySql\src\Common.MySql.Tests\Common.MySql.Tests.csproj", "{98EFE255-60D6-4C1B-95A6-49779D21E94E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Models", "..\..\Common.Models\src\Common.Models\Common.Models.csproj", "{80C9F352-5EED-41B2-989A-6628BCAF4D36}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InforoomOnline.Tests", "InforoomOnline.Tests\InforoomOnline.Tests.csproj", "{D34F8F35-9304-4285-ABC4-0DB9DBE253BF}"
+EndProject
 Global
 	GlobalSection(SourceCodeControl) = preSolution
-		SccNumberOfProjects = 2
+		SccNumberOfProjects = 6
 		SccLocalPath0 = .
 		SccProjectUniqueName1 = InforoomOnline\\InforoomOnline.csproj
 		SccLocalPath1 = .
 		SccProjectFilePathRelativizedFromConnection1 = InforoomOnline\\
+		SccProjectUniqueName2 = ..\\..\\Common.MySql\\src\\Common.MySql\\Common.MySql.csproj
+		SccProjectTopLevelParentUniqueName2 = InforoomOnline.sln
+		SccProjectName2 = \u0022$/Inforoom/NET2.0/Common.MySql/src/Common.MySql\u0022,\u0020XFNAAAAA
+		SccLocalPath2 = ..\\..\\Common.MySql\\src\\Common.MySql
+		SccProjectUniqueName3 = ..\\..\\Common.MySql\\src\\Common.MySql.Tests\\Common.MySql.Tests.csproj
+		SccProjectTopLevelParentUniqueName3 = InforoomOnline.sln
+		SccProjectName3 = \u0022$/Inforoom/NET2.0/Common.MySql/src/Common.MySql.Tests\u0022,\u0020FGNAAAAA
+		SccLocalPath3 = ..\\..\\Common.MySql\\src\\Common.MySql.Tests
+		SccProjectUniqueName4 = ..\\..\\Common.Models\\src\\Common.Models\\Common.Models.csproj
+		SccProjectTopLevelParentUniqueName4 = InforoomOnline.sln
+		SccProjectName4 = \u0022$/Inforoom/NET2.0/Common.Models/src/Common.Models\u0022,\u0020RGNAAAAA
+		SccLocalPath4 = ..\\..\\Common.Models\\src\\Common.Models
+		SccProjectUniqueName5 = InforoomOnline.Tests\\InforoomOnline.Tests.csproj
+		SccProjectName5 = \u0022$/Inforoom/NET2.0/InforoomOnline/src/InforoomOnline.Tests\u0022,\u0020KFNAAAAA
+		SccLocalPath5 = InforoomOnline.Tests
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,8 +45,29 @@ Global
 		{C5D0894B-BB0F-4B87-9568-915381642F58}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C5D0894B-BB0F-4B87-9568-915381642F58}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C5D0894B-BB0F-4B87-9568-915381642F58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A680813-C83B-497A-85E6-E8F07B7D7650}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A680813-C83B-497A-85E6-E8F07B7D7650}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A680813-C83B-497A-85E6-E8F07B7D7650}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A680813-C83B-497A-85E6-E8F07B7D7650}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98EFE255-60D6-4C1B-95A6-49779D21E94E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98EFE255-60D6-4C1B-95A6-49779D21E94E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98EFE255-60D6-4C1B-95A6-49779D21E94E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98EFE255-60D6-4C1B-95A6-49779D21E94E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80C9F352-5EED-41B2-989A-6628BCAF4D36}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80C9F352-5EED-41B2-989A-6628BCAF4D36}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80C9F352-5EED-41B2-989A-6628BCAF4D36}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80C9F352-5EED-41B2-989A-6628BCAF4D36}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D34F8F35-9304-4285-ABC4-0DB9DBE253BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D34F8F35-9304-4285-ABC4-0DB9DBE253BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D34F8F35-9304-4285-ABC4-0DB9DBE253BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D34F8F35-9304-4285-ABC4-0DB9DBE253BF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8A680813-C83B-497A-85E6-E8F07B7D7650} = {0AD491B8-7584-40E8-8E58-682737CF1284}
+		{98EFE255-60D6-4C1B-95A6-49779D21E94E} = {0AD491B8-7584-40E8-8E58-682737CF1284}
+		{80C9F352-5EED-41B2-989A-6628BCAF4D36} = {0AD491B8-7584-40E8-8E58-682737CF1284}
 	EndGlobalSection
 EndGlobal
