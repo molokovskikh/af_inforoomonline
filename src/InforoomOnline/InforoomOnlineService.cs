@@ -17,6 +17,7 @@ namespace InforoomOnline
 	[AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Required)]
 	public class InforoomOnlineService : IInforoomOnlineService
 	{
+		[OfferRowCalculator]
 		public DataSet GetOffers(string[] rangeField, string[] rangeValue, bool newEar, string[] sortField, string[] sortOrder,
 		                         int limit, int selStart)
 		{
@@ -59,8 +60,7 @@ namespace InforoomOnline
 							.Execute();
 
 						SqlBuilder builder = SqlBuilder
-							.ForCommandTest(
-							@"
+							.ForCommandTest(@"
 SELECT	offers.Id as OfferId,
 		offers.PriceCode,
 		offers.FullCode,
@@ -93,6 +93,7 @@ FROM core as offers
 			return result;
 		}
 
+		[RowCalculator]
 		public DataSet GetPriceList(string[] firmName)
 		{
 			DataSet result = null;
@@ -130,16 +131,56 @@ from prices p
 						result = helper
 									.Command(builder.GetSql())
 										.AddParameter("?ClientCode", GetClientCode(helper))
-									.Fill();
+										.Fill();
 					});
 			return result;
 		}
 
+		[RowCalculator]
 		public DataSet GetNamesFromCatalog(string[] name, string[] form, bool offerOnly, int limit, int selStart)
 		{
-			return null;
+			DataSet result = null;
+			With.Transaction(
+				delegate (MySqlHelper helper)
+					{
+						SqlBuilder builder;
+						if (offerOnly)
+						{
+							builder =
+								SqlBuilder.ForCommandTest(@"
+CALL GetActivePrices(?ClientCode);
+
+SELECT distinct catalog.FullCode, 
+		catalog.Name, 
+		catalog.Form 
+FROM farm.catalog catalog
+	JOIN Farm.Core0 offers ON catalog.fullcode = offers.fullcode
+		JOIN activeprices ap ON ap.pricecode = offers.firmcode");
+						}
+						else
+						{
+							builder =
+								SqlBuilder.ForCommandTest(@"
+SELECT distinct catalog.FullCode PrepCode, 
+		catalog.Name, 
+		catalog.Form
+FROM farm.catalog catalog");
+						}
+
+						builder
+							.AddCriteria(Utils.StringArrayToQuery(name, "catalog.Name"))
+							.AddCriteria(Utils.StringArrayToQuery(name, "catalog.Form"))
+							.Limit(limit, selStart);
+
+						result = helper
+									.Command(builder.GetSql())
+										.AddParameter("?ClientCode", GetClientCode(helper))
+										.Fill();
+					});
+			return result;
 		}
 
+		[RowCalculator]
 		public DataSet PostOrder(long[] offerId, int[] quantity, string[] message)
 		{
 			return null;

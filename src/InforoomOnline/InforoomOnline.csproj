@@ -76,6 +76,8 @@
   <ItemGroup>
     <Compile Include="InforoomOnlineService.cs" />
     <Compile Include="IInforoomOnlineService.cs" />
+    <Compile Include="ResultLogingInterceptor.cs" />
+    <Compile Include="RowCalculatorAttribute.cs" />
     <Compile Include="TestHostFactory.cs" />
     <Compile Include="LoggingInterceptor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
