@@ -5,7 +5,8 @@ using System.ServiceModel.Activation;
 
 namespace InforoomOnline
 {
-	[ServiceContract(Namespace = "http://ios.analit.net/InforoomOnLine/")]
+	//[ServiceContract(Namespace = "http://ios.analit.net/InforoomOnLine/")]
+	[ServiceContract]
 	public interface IInforoomOnlineService
 	{
 		[OperationContract]

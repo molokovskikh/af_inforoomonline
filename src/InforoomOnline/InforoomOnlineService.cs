@@ -13,7 +13,8 @@ using log4net.Config;
 namespace InforoomOnline
 {
 	[Interceptor(typeof(LoggingInterceptor))]
-	[ServiceBehavior(Namespace = "http://ios.analit.net/InforoomOnLine/")]
+	//[ServiceBehavior(Namespace = "http://ios.analit.net/InforoomOnLine/")]
+	//[ServiceBehavior()]
 	[AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Required)]
 	public class InforoomOnlineService : IInforoomOnlineService
 	{
@@ -183,7 +184,7 @@ FROM farm.catalog catalog");
 		[RowCalculator]
 		public DataSet PostOrder(long[] offerId, int[] quantity, string[] message)
 		{
-			return null;
+			throw new NotImplementedException();
 		}
 
 		private static Dictionary<string, List<string>> GroupValues(IEnumerable<string> fields, string[] values)
