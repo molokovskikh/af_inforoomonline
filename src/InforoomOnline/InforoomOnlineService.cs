@@ -9,6 +9,8 @@ using Castle.Facilities.WcfIntegration;
 using Common.MySql;
 using log4net;
 using log4net.Config;
+using MySql.Data.MySqlClient;
+using MySqlHelper=Common.MySql.MySqlHelper;
 
 namespace InforoomOnline
 {
@@ -184,7 +186,156 @@ FROM farm.catalog catalog");
 		[RowCalculator]
 		public DataSet PostOrder(long[] offerId, int[] quantity, string[] message)
 		{
-			throw new NotImplementedException();
+			DataSet result = null;
+			With.Transaction(
+				delegate(MySqlHelper helper)
+					{
+						Dictionary<long, bool> offersStatus = new Dictionary<long, bool>();
+
+						foreach (long id in offerId)
+							offersStatus.Add(id, false);
+
+						int Index;
+						DataSet dsRes;
+						DataTable dtPricesRes;
+
+						DataSet dsPost;
+						DataTable dtSummaryOrder;
+						DataTable dtOrderHead;
+
+
+						string CoreIDString = "(";
+						foreach (long ID in offerId)
+						{
+							if ((CoreIDString.Length > 1) && (ID > 0))
+							{
+								CoreIDString += ", ";
+							}
+							if (ID > 0)
+							{
+								CoreIDString += ID.ToString();
+							}
+						}
+						CoreIDString += ")";
+
+						dsPost = new DataSet();
+
+						string commandText =@"
+CALL GetActivePrices(?ClientCode);
+
+SELECT  cd.FirmCode as ClientCode,
+		cd.RegionCode,
+		ap.PriceCode,
+		ap.PriceDate,
+		c.Id,
+        c.FullCode,
+        c.CodeFirmCr,
+        c.SynonymCode,
+        c.SynonymFirmCrCode,
+        c.Code,
+		c.CodeCr,
+		0 Quantity,
+        length(c.Junk) > 0 Junk,
+		length(c.Await) > 0 Await,
+		c.BaseCost,
+		round(if(if(ap.costtype=0, corecosts.cost, c.basecost) * ap.UpCost < c.minboundcost, c.minboundcost, if(ap.costtype=0, corecosts.cost, c.basecost) * ap.UpCost),2) as Cost
+FROM    (farm.formrules fr,
+        usersettings.clientsdata,
+        (farm.core0 c, ActivePrices ap)
+          LEFT JOIN farm.corecosts
+            ON corecosts.Core_Id     = c.id
+              AND corecosts.PC_CostCode = ap.CostCode),
+		UserSettings.ClientsData cd
+WHERE c.firmcode                          = if(ap.costtype=0, ap.PriceCode, ap.CostCode)
+    AND fr.firmcode                         = ap.pricecode
+    AND clientsdata.firmcode                = ap.firmcode
+	AND if(ap.costtype = 0, corecosts.cost is not null, c.basecost is not null)
+	AND cd.FirmCode							= ?ClientCode
+	AND c.ID in " +
+							CoreIDString;
+						helper.Command(commandText)
+							.AddParameter("?ClientCode", GetClientCode(helper))
+							.Fill(dsPost, "SummaryOrder");
+
+						dtSummaryOrder = dsPost.Tables["SummaryOrder"];
+
+						foreach (DataRow row in dtSummaryOrder.Rows)
+						{
+							long toOrderOfferId = Convert.ToInt64(row["Id"]);
+							offersStatus[toOrderOfferId] = true;
+						}
+
+						DataRow[] drs;
+						dtSummaryOrder.Columns.Add(new DataColumn("Message", typeof (string)));
+						for (int i = 0; i < offerId.Length; i++)
+						{
+							drs = dtSummaryOrder.Select("Id = " + offerId[i]);
+							if (drs.Length > 0)
+							{
+								drs[0]["Quantity"] = quantity[i];
+								if ((message != null) && (message.Length > i))
+									drs[0]["Message"] = message[i];
+							}
+						}
+
+						dtOrderHead = dtSummaryOrder.DefaultView.ToTable(true, "ClientCode", "RegionCode", "PriceCode", "PriceDate");
+						dtOrderHead.Columns.Add(new DataColumn("OrderID", typeof (long)));
+
+						DataRow[] drOrderList;
+						foreach (DataRow drOH in dtOrderHead.Rows)
+						{
+							drOrderList = dtSummaryOrder.Select("PriceCode = " + drOH["PriceCode"]);
+							if (drOrderList.Length > 0)
+							{
+								drOH["OrderID"] =
+									helper.Command(@"
+insert into orders.ordershead (WriteTime, ClientCode, PriceCode, RegionCode, PriceDate, RowCount, ClientAddition, Processed)
+values(now(), ?ClientCode, ?PriceCode, ?RegionCode, ?PriceDate, ?RowCount, ?ClientAddition, 0);
+select LAST_INSERT_ID();")
+										.AddParameter("?ClientCode", drOH["ClientCode"])
+										.AddParameter("?PriceCode", drOH["PriceCode"])
+										.AddParameter("?RegionCode", drOH["RegionCode"])
+										.AddParameter("?PriceDate", drOH["PriceDate"])
+										.AddParameter("?RowCount", drOrderList.Length)
+										.AddParameter("?ClientAddition", drOrderList[0]["Message"])
+										.ExecuteScalar<object>();
+
+
+								foreach (DataRow drOL in drOrderList)
+								{
+									helper.Command(@"
+insert into orders.orderslist (OrderID, FullCode, CodeFirmCr, SynonymCode, SynonymFirmCrCode, Code, CodeCr, Quantity, Junk, Await, Cost) values (?OrderID, ?FullCode, ?CodeFirmCr, ?SynonymCode, ?SynonymFirmCrCode, ?Code, ?CodeCr, ?Quantity, ?Junk, ?Await, ?Cost);")
+										.AddParameter("?OrderID", drOH["OrderID"])
+										.AddParameter("?FullCode", drOL["FullCode"])
+										.AddParameter("?CodeFirmCr", drOL["CodeFirmCr"])
+										.AddParameter("?SynonymCode", drOL["SynonymCode"])
+										.AddParameter("?SynonymFirmCrCode", drOL["SynonymFirmCrCode"])
+										.AddParameter("?Code", drOL["Code"])
+										.AddParameter("?CodeCr", drOL["CodeCr"])
+										.AddParameter("?Junk", drOL["Junk"])
+										.AddParameter("?Await", drOL["Await"])
+										.AddParameter("?Cost", drOL["Cost"])
+										.AddParameter("?Quantity", drOL["Quantity"])
+										.Execute();
+								}
+							}
+						}
+
+						DataSet toResult = new DataSet();
+						toResult.Tables.Add();
+						toResult.Tables[0].Columns.Add("OfferId", typeof(long));
+						toResult.Tables[0].Columns.Add("Posted", typeof(bool));
+						foreach (KeyValuePair<long, bool> offer in offersStatus)
+						{
+							DataRow row = toResult.Tables[0].NewRow();
+							row["OfferId"] = offer.Key;
+							row["Posted"] = offer.Value;
+							toResult.Tables[0].Rows.Add(row);
+						}
+						result = toResult;
+					});
+
+			return result;
 		}
 
 		private static Dictionary<string, List<string>> GroupValues(IEnumerable<string> fields, string[] values)
