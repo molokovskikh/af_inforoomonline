@@ -29,20 +29,20 @@ namespace InforoomOnline
 				delegate(MySqlHelper helper)
 					{
 						Dictionary<string, string> columnNameMapping = new Dictionary<string, string>();
-						columnNameMapping.Add("offers.Id", "offerid");
-						columnNameMapping.Add("offers.PriceCode", "pricecode");
-						columnNameMapping.Add("offers.FullCode", "fullcode");
-						columnNameMapping.Add("s.synonym", "name");
-						columnNameMapping.Add("c.CodeCr", "code");
-						columnNameMapping.Add("c.Code", "codecr");
-						columnNameMapping.Add("c.Unit", "unit");
-						columnNameMapping.Add("c.Volume", "volume");
-						columnNameMapping.Add("c.Quantity", "quantity");
-						columnNameMapping.Add("c.Note", "note");
-						columnNameMapping.Add("c.Period", "period");
-						columnNameMapping.Add("c.Doc", "doc");
-						columnNameMapping.Add("c.Junk", "junk");
-						columnNameMapping.Add("offers.Cost", "cost");
+                        columnNameMapping.Add("offerid", "offers.Id");
+                        columnNameMapping.Add("pricecode", "offers.PriceCode");
+                        columnNameMapping.Add("fullcode", "offers.FullCode");
+                        columnNameMapping.Add("name", "s.synonym");
+                        columnNameMapping.Add("code", "c.CodeCr");
+                        columnNameMapping.Add("codecr", "c.Code");
+                        columnNameMapping.Add("unit", "c.Unit");
+                        columnNameMapping.Add("volume", "c.Volume");
+                        columnNameMapping.Add("quantity", "c.Quantity");
+                        columnNameMapping.Add("note", "c.Note");
+                        columnNameMapping.Add("period", "c.Period");
+                        columnNameMapping.Add("doc", "c.Doc");
+                        columnNameMapping.Add("junk", "c.Junk");
+                        columnNameMapping.Add("cost", "offers.Cost");
 
 						ValidateFieldNames(columnNameMapping, rangeField);
 						ValidateFieldNames(columnNameMapping, sortField);
@@ -348,7 +348,7 @@ insert into orders.orderslist (OrderID, FullCode, CodeFirmCr, SynonymCode, Synon
 					{
 						if (!result.ContainsKey(field.ToLower()))
 							result.Add(field.ToLower(), new List<string>());
-						result[field].Add(values[i]);
+                        result[field.ToLower()].Add(values[i]);
 						i++;
 					}
 				}
