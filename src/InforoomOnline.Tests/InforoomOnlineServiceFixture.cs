@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Text;
 using NUnit.Framework;
 
@@ -19,7 +20,7 @@ namespace InforoomOnline.Tests
 		public void GetOffers()
 		{
 			InforoomOnlineService service = new InforoomOnlineService();
-			service.GetOffers(new string[0], new string[0], false, new string[0], new string[0], 100, 0);
+			DataSet data = service.GetOffers(new string[] { "PriceCode", "Code" }, new string[] { "32", "нт-659" }, false, new string[0], new string[0], 100, 0);
 		}
 
 		[Test]
