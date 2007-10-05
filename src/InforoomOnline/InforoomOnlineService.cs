@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.ServiceModel;
@@ -33,8 +34,9 @@ namespace InforoomOnline
                         columnNameMapping.Add("pricecode", "offers.PriceCode");
                         columnNameMapping.Add("fullcode", "offers.FullCode");
                         columnNameMapping.Add("name", "s.synonym");
-                        columnNameMapping.Add("code", "c.CodeCr");
-                        columnNameMapping.Add("codecr", "c.Code");
+						columnNameMapping.Add("crname", "sfc.synonym");
+						columnNameMapping.Add("code", "c.Code");
+						columnNameMapping.Add("codecr", "c.CodeCr");
                         columnNameMapping.Add("unit", "c.Unit");
                         columnNameMapping.Add("volume", "c.Volume");
                         columnNameMapping.Add("quantity", "c.Quantity");
@@ -70,6 +72,7 @@ SELECT	offers.Id as OfferId,
 		c.Code,
 		c.CodeCr,
 		s.synonym as Name,
+		sfc.synonym as CrName,
 		c.Unit,
 		c.Volume,
 		c.Quantity,
@@ -80,7 +83,8 @@ SELECT	offers.Id as OfferId,
 		offers.Cost 
 FROM core as offers
     JOIN farm.core0 as c on c.id = offers.id
-		JOIN farm.synonym s on c.synonymcode = s.synonymcode");
+		JOIN farm.synonym s on c.synonymcode = s.synonymcode
+		JOIN farm.synonymfirmcr sfc on sfc.SynonymFirmCrCode = c.synonymfirmcrcode");
 
 						foreach (KeyValuePair<string, List<string>> pair in groupedValues)
 							builder.AddCriteria(Utils.StringArrayToQuery(pair.Value, columnNameMapping[pair.Key]));
