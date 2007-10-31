@@ -55,7 +55,7 @@
     </Reference>
     <Reference Include="Common.Models, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Common.Models\src\Common.Models\bin\Debug\Common.Models.dll</HintPath>
+      <HintPath>..\..\..\Common.Models\src\Common.Models\bin\$(Configuration)\Common.Models.dll</HintPath>
     </Reference>
     <Reference Include="Common.MySql, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
