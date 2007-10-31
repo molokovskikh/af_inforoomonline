@@ -14,13 +14,18 @@ namespace InforoomOnline.Tests
 		{
 			InforoomOnlineService service = new InforoomOnlineService();
 			service.GetNamesFromCatalog(new string[0], new string[0], false, 100, 0);
+			service.GetNamesFromCatalog(new string[] { "*Тест*" }, new string[0], false, 100, 0);
+			service.GetNamesFromCatalog(new string[0], new string[] { "*Тест*" }, false, 100, 0);
+			service.GetNamesFromCatalog(new string[0], new string[0], true, 100, 0);
+			service.GetNamesFromCatalog(new string[] { "*Тест*" }, new string[0], true, 100, 0);
+			service.GetNamesFromCatalog(new string[0], new string[] { "*Тест*" }, true, 100, 0);
 		}
 
 		[Test]
 		public void GetOffers()
 		{
 			InforoomOnlineService service = new InforoomOnlineService();
-			DataSet data = service.GetOffers(new string[] { "PriceCode", "Code" }, new string[] { "32", "ОФ-659" }, false, new string[0], new string[0], 100, 0);
+			DataSet data = service.GetOffers(new string[] { "PriceCode", "Code", "FullCode" }, new string[] { "32", "ОФ-659", "1" }, false, new string[0], new string[0], 100, 0);
 		}
 
 		[Test]
@@ -28,6 +33,14 @@ namespace InforoomOnline.Tests
 		{
 			InforoomOnlineService service = new InforoomOnlineService();
 			service.GetPriceList(new string[0]);
+			service.GetPriceList(new string[] {"%а%"});
+		}
+
+		[Test]
+		public void PostOrder()
+		{
+			InforoomOnlineService service = new InforoomOnlineService();
+			service.PostOrder(new long[] { 687471520 }, new int[] { 1 }, new string[] { "это тестовый заказ" });
 		}
 	}
 }
