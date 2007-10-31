@@ -1,29 +1,30 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-using System.ServiceModel;
 using System.ServiceModel.Activation;
-using System.Text;
 using Castle.Core;
-using Castle.Facilities.WcfIntegration;
+using Common.Models;
+using Common.Models.Repositories;
 using Common.MySql;
-using log4net;
-using log4net.Config;
+using InforoomOnline.Logging;
 using MySql.Data.MySqlClient;
 using MySqlHelper=Common.MySql.MySqlHelper;
 
 namespace InforoomOnline
 {
-	[Interceptor(typeof(LoggingInterceptor))]
-	//[ServiceBehavior(Namespace = "http://ios.analit.net/InforoomOnLine/")]
-	//[ServiceBehavior()]
+	[Interceptor(typeof(ErrorLoggingInterceptor))]
+	[Interceptor(typeof(ResultLogingInterceptor))]
 	[AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Required)]
 	public class InforoomOnlineService : IInforoomOnlineService
 	{
 		[OfferRowCalculator]
-		public DataSet GetOffers(string[] rangeField, string[] rangeValue, bool newEar, string[] sortField, string[] sortOrder,
-		                         int limit, int selStart)
+		public DataSet GetOffers(string[] rangeField,
+		                         string[] rangeValue,
+		                         bool newEar,
+		                         string[] sortField,
+		                         string[] sortOrder,
+		                         int limit,
+		                         int selStart)
 		{
 			DataSet result = null;
 			With.Transaction(
@@ -32,7 +33,7 @@ namespace InforoomOnline
 						Dictionary<string, string> columnNameMapping = new Dictionary<string, string>();
                         columnNameMapping.Add("offerid", "offers.Id");
                         columnNameMapping.Add("pricecode", "offers.PriceCode");
-                        columnNameMapping.Add("fullcode", "offers.FullCode");
+						columnNameMapping.Add("fullcode", "p.CatalogId");
                         columnNameMapping.Add("name", "s.synonym");
 						columnNameMapping.Add("crname", "sfc.synonym");
 						columnNameMapping.Add("code", "c.Code");
@@ -68,7 +69,7 @@ namespace InforoomOnline
 							.ForCommandTest(@"
 SELECT	offers.Id as OfferId,
 		offers.PriceCode,
-		offers.FullCode,
+		p.CatalogId as FullCode,
 		c.Code,
 		c.CodeCr,
 		s.synonym as Name,
@@ -84,7 +85,8 @@ SELECT	offers.Id as OfferId,
 FROM core as offers
     JOIN farm.core0 as c on c.id = offers.id
 		JOIN farm.synonym s on c.synonymcode = s.synonymcode
-		JOIN farm.synonymfirmcr sfc on sfc.SynonymFirmCrCode = c.synonymfirmcrcode");
+		JOIN farm.synonymfirmcr sfc on sfc.SynonymFirmCrCode = c.synonymfirmcrcode
+		JOIN Catalogs.Products p on p.Id = c.ProductId");
 
 						foreach (KeyValuePair<string, List<string>> pair in groupedValues)
 							builder.AddCriteria(Utils.StringArrayToQuery(pair.Value, columnNameMapping[pair.Key]));
@@ -107,10 +109,13 @@ FROM core as offers
 			With.Transaction(
 				delegate(MySqlHelper helper)
 					{
+						helper
+							.Command("call GetPrices(?ClientCode);")
+							.AddParameter("?ClientCode", GetClientCode(helper))
+							.Execute();
+
 						SqlBuilder builder = SqlBuilder
 							.ForCommandTest(@"
-call GetPrices(?ClientCode);
-
 select	p.PriceCode as PriceCode,
 		p.PriceName as PriceName,
 		p.PriceDate as PriceDate,
@@ -153,30 +158,42 @@ from prices p
 						SqlBuilder builder;
 						if (offerOnly)
 						{
-							builder =
-								SqlBuilder.ForCommandTest(@"
-CALL GetActivePrices(?ClientCode);
+							helper
+								.Command("CALL GetOffers(?ClientCode, 0);")
+								.AddParameter("?ClientCode", GetClientCode(helper))
+								.Execute();
 
-SELECT distinct catalog.FullCode, 
-		catalog.Name, 
-		catalog.Form 
-FROM farm.catalog catalog
-	JOIN Farm.Core0 offers ON catalog.fullcode = offers.fullcode
-		JOIN activeprices ap ON ap.pricecode = offers.firmcode");
+							builder = SqlBuilder.ForCommandTest(@"
+SELECT	distinct c.id as FullCode, 
+		cn.name, 
+		cf.form
+FROM Catalogs.Catalog c
+	JOIN Catalogs.CatalogNames cn on cn.id = c.nameid
+	JOIN Catalogs.CatalogForms cf on cf.id = c.formid
+	JOIN Catalogs.Products p on p.CatalogId = c.Id
+		LEFT JOIN Catalogs.ProductProperties pp on pp.ProductId = p.Id
+	JOIN Farm.Core0 c0 on c0.ProductId = p.Id
+		JOIN core offers on offers.Id = c0.Id");
 						}
 						else
 						{
 							builder =
 								SqlBuilder.ForCommandTest(@"
-SELECT distinct catalog.FullCode PrepCode, 
-		catalog.Name, 
-		catalog.Form
-FROM farm.catalog catalog");
+SELECT	c.id as FullCode,  
+		cn.name, 
+		cf.form
+FROM Catalogs.Catalog c 
+	JOIN Catalogs.CatalogNames cn on cn.id = c.nameid
+	JOIN Catalogs.CatalogForms cf on cf.id = c.formid
+	JOIN Catalogs.Products p on p.CatalogId = c.Id
+		LEFT JOIN Catalogs.ProductProperties pp on pp.ProductId = p.Id");
 						}
 
 						builder
-							.AddCriteria(Utils.StringArrayToQuery(name, "catalog.Name"))
-							.AddCriteria(Utils.StringArrayToQuery(name, "catalog.Form"))
+							.AddCriteria(Utils.StringArrayToQuery(name, "cn.Name"))
+							.AddCriteria(Utils.StringArrayToQuery(name, "cf.Form"))
+							.AddCriteria("pp.ProductId is null")
+							.AddCriteria("p.Hidden = 0")
 							.Limit(limit, selStart);
 
 						result = helper
@@ -224,15 +241,18 @@ FROM farm.catalog catalog");
 
 						dsPost = new DataSet();
 
-						string commandText =@"
-CALL GetActivePrices(?ClientCode);
+						helper.Command("CALL GetActivePrices(?ClientCode);")
+							.AddParameter("?ClientCode", GetClientCode(helper))
+							.Execute();
 
+
+						string commandText = @"
 SELECT  cd.FirmCode as ClientCode,
 		cd.RegionCode,
 		ap.PriceCode,
 		ap.PriceDate,
 		c.Id,
-        c.FullCode,
+        c.ProductId,
         c.CodeFirmCr,
         c.SynonymCode,
         c.SynonymFirmCrCode,
@@ -299,7 +319,7 @@ select LAST_INSERT_ID();")
 										.AddParameter("?ClientCode", drOH["ClientCode"])
 										.AddParameter("?PriceCode", drOH["PriceCode"])
 										.AddParameter("?RegionCode", drOH["RegionCode"])
-										.AddParameter("?PriceDate", drOH["PriceDate"])
+										.AddParameter("?PriceDate", drOH["PriceDate"], MySqlDbType.Datetime)
 										.AddParameter("?RowCount", drOrderList.Length)
 										.AddParameter("?ClientAddition", drOrderList[0]["Message"])
 										.ExecuteScalar<object>();
@@ -308,9 +328,9 @@ select LAST_INSERT_ID();")
 								foreach (DataRow drOL in drOrderList)
 								{
 									helper.Command(@"
-insert into orders.orderslist (OrderID, FullCode, CodeFirmCr, SynonymCode, SynonymFirmCrCode, Code, CodeCr, Quantity, Junk, Await, Cost) values (?OrderID, ?FullCode, ?CodeFirmCr, ?SynonymCode, ?SynonymFirmCrCode, ?Code, ?CodeCr, ?Quantity, ?Junk, ?Await, ?Cost);")
+insert into orders.orderslist (OrderID, ProductId, CodeFirmCr, SynonymCode, SynonymFirmCrCode, Code, CodeCr, Quantity, Junk, Await, Cost) values (?OrderID, ?ProductId, ?CodeFirmCr, ?SynonymCode, ?SynonymFirmCrCode, ?Code, ?CodeCr, ?Quantity, ?Junk, ?Await, ?Cost);")
 										.AddParameter("?OrderID", drOH["OrderID"])
-										.AddParameter("?FullCode", drOL["FullCode"])
+										.AddParameter("?ProductId", drOL["ProductId"])
 										.AddParameter("?CodeFirmCr", drOL["CodeFirmCr"])
 										.AddParameter("?SynonymCode", drOL["SynonymCode"])
 										.AddParameter("?SynonymFirmCrCode", drOL["SynonymFirmCrCode"])
@@ -393,7 +413,7 @@ WHERE OSUserName = ?UserName")
 				.AddParameter("?UserName", userName)
 				.ExecuteScalar<uint>();
 #else
-			return 2575;
+			return 2359;
 #endif
 		}
 	}

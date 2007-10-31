@@ -53,6 +53,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\Tools\Monorail-build-4096\Castle.Windsor.dll</HintPath>
     </Reference>
+    <Reference Include="Common.Models, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Common.Models\src\Common.Models\bin\Debug\Common.Models.dll</HintPath>
+    </Reference>
     <Reference Include="Common.MySql, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Common.MySql\src\Common.MySql\bin\$(Configuration)\Common.MySql.dll</HintPath>
@@ -76,10 +80,11 @@
   <ItemGroup>
     <Compile Include="InforoomOnlineService.cs" />
     <Compile Include="IInforoomOnlineService.cs" />
-    <Compile Include="ResultLogingInterceptor.cs" />
-    <Compile Include="RowCalculatorAttribute.cs" />
+    <Compile Include="Logging\ResultLogingInterceptor.cs" />
+    <Compile Include="Logging\RowCalculatorAttribute.cs" />
+    <Compile Include="Models\ServiceLogEntity.cs" />
     <Compile Include="TestHostFactory.cs" />
-    <Compile Include="LoggingInterceptor.cs" />
+    <Compile Include="Logging\ErrorLoggingInterceptor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
