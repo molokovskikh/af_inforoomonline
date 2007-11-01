@@ -13,12 +13,12 @@ namespace InforoomOnline.Tests
 		public void GetNameFromCatalog()
 		{
 			InforoomOnlineService service = new InforoomOnlineService();
-			service.GetNamesFromCatalog(new string[0], new string[0], false, 100, 0);
-			service.GetNamesFromCatalog(new string[] { "*Тест*" }, new string[0], false, 100, 0);
-			service.GetNamesFromCatalog(new string[0], new string[] { "*Тест*" }, false, 100, 0);
-			service.GetNamesFromCatalog(new string[0], new string[0], true, 100, 0);
-			service.GetNamesFromCatalog(new string[] { "*Тест*" }, new string[0], true, 100, 0);
-			service.GetNamesFromCatalog(new string[0], new string[] { "*Тест*" }, true, 100, 0);
+			LogDataSet(service.GetNamesFromCatalog(new string[0], new string[0], false, 100, 0));
+			LogDataSet(service.GetNamesFromCatalog(new string[] { "*Тест*" }, new string[0], false, 100, 0));
+			LogDataSet(service.GetNamesFromCatalog(new string[0], new string[] { "*Тест*" }, false, 100, 0));
+			LogDataSet(service.GetNamesFromCatalog(new string[0], new string[0], true, 100, 0));
+			LogDataSet(service.GetNamesFromCatalog(new string[] { "*Тест*" }, new string[0], true, 100, 0));
+			LogDataSet(service.GetNamesFromCatalog(new string[0], new string[] { "*Тест*" }, true, 100, 0));
 		}
 
 		[Test]
@@ -32,8 +32,8 @@ namespace InforoomOnline.Tests
 		public void GetPriceList()
 		{
 			InforoomOnlineService service = new InforoomOnlineService();
-			service.GetPriceList(new string[0]);
-			service.GetPriceList(new string[] {"%а%"});
+			LogDataSet(service.GetPriceList(new string[0]));
+			LogDataSet(service.GetPriceList(new string[] {"%а%"}));
 		}
 
 		[Test]
@@ -41,6 +41,26 @@ namespace InforoomOnline.Tests
 		{
 			InforoomOnlineService service = new InforoomOnlineService();
 			service.PostOrder(new long[] { 687471520 }, new int[] { 1 }, new string[] { "это тестовый заказ" });
+		}
+
+		private static void LogDataSet(DataSet dataSet)
+		{
+			foreach (DataTable dataTable in dataSet.Tables)
+			{
+				Console.WriteLine("<table>");
+				foreach (DataRow dataRow in dataTable.Rows)
+				{
+					Console.WriteLine("\t<row>");
+					Console.Write("\t");
+					foreach (DataColumn column in dataTable.Columns)
+					{
+						Console.Write(dataRow[column] + " ");
+					}
+					Console.WriteLine();
+					Console.WriteLine("\t</row>");
+				}
+				Console.WriteLine("</table>");
+			}
 		}
 	}
 }
