@@ -160,7 +160,7 @@ from prices p
 						if (offerOnly)
 						{
 							helper
-								.Command("CALL GetOffers(?ClientCode, 0);")
+								.Command("CALL GetActivePrices(?ClientCode);")
 								.AddParameter("?ClientCode", GetClientCode(helper))
 								.Execute();
 
@@ -172,29 +172,24 @@ FROM Catalogs.Catalog c
 	JOIN Catalogs.CatalogNames cn on cn.id = c.nameid
 	JOIN Catalogs.CatalogForms cf on cf.id = c.formid
 	JOIN Catalogs.Products p on p.CatalogId = c.Id
-		LEFT JOIN Catalogs.ProductProperties pp on pp.ProductId = p.Id
 	JOIN Farm.Core0 c0 on c0.ProductId = p.Id
-		JOIN core offers on offers.Id = c0.Id");
+		JOIN activeprices ap on ap.PriceCode = c0.PriceCode");
 						}
 						else
 						{
-							builder =
-								SqlBuilder.ForCommandTest(@"
+							builder = SqlBuilder.ForCommandTest(@"
 SELECT	c.id as FullCode,  
 		cn.name, 
 		cf.form
 FROM Catalogs.Catalog c 
 	JOIN Catalogs.CatalogNames cn on cn.id = c.nameid
-	JOIN Catalogs.CatalogForms cf on cf.id = c.formid
-	JOIN Catalogs.Products p on p.CatalogId = c.Id
-		LEFT JOIN Catalogs.ProductProperties pp on pp.ProductId = p.Id");
+	JOIN Catalogs.CatalogForms cf on cf.id = c.formid");
 						}
 
 						builder
 							.AddCriteria(Utils.StringArrayToQuery(name, "cn.Name"))
-							.AddCriteria(Utils.StringArrayToQuery(name, "cf.Form"))
-							.AddCriteria("pp.ProductId is null")
-							.AddCriteria("p.Hidden = 0")
+							.AddCriteria(Utils.StringArrayToQuery(form, "cf.Form"))
+							.AddCriteria("c.Hidden = 0")
 							.Limit(limit, selStart);
 
 						result = helper
