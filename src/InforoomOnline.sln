@@ -3,6 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InforoomOnline", "InforoomOnline\InforoomOnline.csproj", "{C5D0894B-BB0F-4B87-9568-915381642F58}"
 	ProjectSection(ProjectDependencies) = postProject
+		{72AFCFE8-C9E9-45FA-9698-BEE896A517A3} = {72AFCFE8-C9E9-45FA-9698-BEE896A517A3}
 		{8A680813-C83B-497A-85E6-E8F07B7D7650} = {8A680813-C83B-497A-85E6-E8F07B7D7650}
 		{80C9F352-5EED-41B2-989A-6628BCAF4D36} = {80C9F352-5EED-41B2-989A-6628BCAF4D36}
 	EndProjectSection
@@ -17,15 +18,30 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.MySql.Tests", "..\..
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Models", "..\..\Common.Models\src\Common.Models\Common.Models.csproj", "{80C9F352-5EED-41B2-989A-6628BCAF4D36}"
+	ProjectSection(ProjectDependencies) = postProject
+		{72AFCFE8-C9E9-45FA-9698-BEE896A517A3} = {72AFCFE8-C9E9-45FA-9698-BEE896A517A3}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InforoomOnline.Tests", "InforoomOnline.Tests\InforoomOnline.Tests.csproj", "{D34F8F35-9304-4285-ABC4-0DB9DBE253BF}"
 	ProjectSection(ProjectDependencies) = postProject
 		{C5D0894B-BB0F-4B87-9568-915381642F58} = {C5D0894B-BB0F-4B87-9568-915381642F58}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Tools", "..\..\Common.Tools\src\Common.Tools\Common.Tools.csproj", "{72AFCFE8-C9E9-45FA-9698-BEE896A517A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Tools.Tests", "..\..\Common.Tools\src\Common.Tools.Test\Common.Tools.Tests.csproj", "{A2C4864F-8976-4C5B-A2BF-60AE31749BB7}"
+	ProjectSection(ProjectDependencies) = postProject
+		{72AFCFE8-C9E9-45FA-9698-BEE896A517A3} = {72AFCFE8-C9E9-45FA-9698-BEE896A517A3}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Models.Tests", "..\..\Common.Models\src\Common.Models.Tests\Common.Models.Tests.csproj", "{75D6B3B6-82B6-448F-8565-DBD2FD467D4F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{80C9F352-5EED-41B2-989A-6628BCAF4D36} = {80C9F352-5EED-41B2-989A-6628BCAF4D36}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SourceCodeControl) = preSolution
-		SccNumberOfProjects = 6
+		SccNumberOfProjects = 9
 		SccLocalPath0 = .
 		SccProjectUniqueName1 = InforoomOnline\\InforoomOnline.csproj
 		SccLocalPath1 = .
@@ -45,6 +61,18 @@ Global
 		SccProjectUniqueName5 = InforoomOnline.Tests\\InforoomOnline.Tests.csproj
 		SccProjectName5 = \u0022$/Inforoom/NET2.0/InforoomOnline/src/InforoomOnline.Tests\u0022,\u0020KFNAAAAA
 		SccLocalPath5 = InforoomOnline.Tests
+		SccProjectUniqueName6 = ..\\..\\Common.Tools\\src\\Common.Tools\\Common.Tools.csproj
+		SccProjectTopLevelParentUniqueName6 = InforoomOnline.sln
+		SccProjectName6 = \u0022$/Inforoom/NET2.0/Common.Tools/src/Common.Tools\u0022,\u0020NBNAAAAA
+		SccLocalPath6 = ..\\..\\Common.Tools\\src\\Common.Tools
+		SccProjectUniqueName7 = ..\\..\\Common.Tools\\src\\Common.Tools.Test\\Common.Tools.Tests.csproj
+		SccProjectTopLevelParentUniqueName7 = InforoomOnline.sln
+		SccProjectName7 = \u0022$/Inforoom/NET2.0/Common.Tools/src/Common.Tools.Test\u0022,\u0020TBNAAAAA
+		SccLocalPath7 = ..\\..\\Common.Tools\\src\\Common.Tools.Test
+		SccProjectUniqueName8 = ..\\..\\Common.Models\\src\\Common.Models.Tests\\Common.Models.Tests.csproj
+		SccProjectTopLevelParentUniqueName8 = InforoomOnline.sln
+		SccProjectName8 = \u0022$/Inforoom/NET2.0/Common.Models/src/Common.Models.Tests\u0022,\u0020ZGNAAAAA
+		SccLocalPath8 = ..\\..\\Common.Models\\src\\Common.Models.Tests
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +99,18 @@ Global
 		{D34F8F35-9304-4285-ABC4-0DB9DBE253BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D34F8F35-9304-4285-ABC4-0DB9DBE253BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D34F8F35-9304-4285-ABC4-0DB9DBE253BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72AFCFE8-C9E9-45FA-9698-BEE896A517A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72AFCFE8-C9E9-45FA-9698-BEE896A517A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72AFCFE8-C9E9-45FA-9698-BEE896A517A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72AFCFE8-C9E9-45FA-9698-BEE896A517A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2C4864F-8976-4C5B-A2BF-60AE31749BB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2C4864F-8976-4C5B-A2BF-60AE31749BB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2C4864F-8976-4C5B-A2BF-60AE31749BB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2C4864F-8976-4C5B-A2BF-60AE31749BB7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75D6B3B6-82B6-448F-8565-DBD2FD467D4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75D6B3B6-82B6-448F-8565-DBD2FD467D4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75D6B3B6-82B6-448F-8565-DBD2FD467D4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75D6B3B6-82B6-448F-8565-DBD2FD467D4F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -79,5 +119,8 @@ Global
 		{8A680813-C83B-497A-85E6-E8F07B7D7650} = {0AD491B8-7584-40E8-8E58-682737CF1284}
 		{98EFE255-60D6-4C1B-95A6-49779D21E94E} = {0AD491B8-7584-40E8-8E58-682737CF1284}
 		{80C9F352-5EED-41B2-989A-6628BCAF4D36} = {0AD491B8-7584-40E8-8E58-682737CF1284}
+		{72AFCFE8-C9E9-45FA-9698-BEE896A517A3} = {0AD491B8-7584-40E8-8E58-682737CF1284}
+		{A2C4864F-8976-4C5B-A2BF-60AE31749BB7} = {0AD491B8-7584-40E8-8E58-682737CF1284}
+		{75D6B3B6-82B6-448F-8565-DBD2FD467D4F} = {0AD491B8-7584-40E8-8E58-682737CF1284}
 	EndGlobalSection
 EndGlobal
