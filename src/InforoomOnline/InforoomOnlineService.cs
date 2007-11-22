@@ -57,17 +57,18 @@ namespace InforoomOnline
 						if (rangeField != null
 							&& (rangeValue == null
 								|| rangeField.Length != rangeValue.Length))
-							throw new Exception(
-								" оличество полей дл€ фильтрации не совпадает с количеством значение по которым производитс€ фильтраци€");
+							throw new Exception(" оличество полей дл€ фильтрации не совпадает с количеством значение по которым производитс€ фильтраци€");
 
-						helper
-							.Command("Usersettings.GetOffers", CommandType.StoredProcedure)
-							.AddParameter("?ClientCodeParam", GetClientCode(helper))
-							.AddParameter("?FreshOnly", false)
-							.Execute();
+						using (CleanUp.AfterGetOffers(helper))
+						{
+							helper
+								.Command("Usersettings.GetOffers", CommandType.StoredProcedure)
+								.AddParameter("?ClientCodeParam", GetClientCode(helper))
+								.AddParameter("?FreshOnly", false)
+								.Execute();
 
-						SqlBuilder builder = SqlBuilder
-							.ForCommandTest(@"
+							SqlBuilder builder = SqlBuilder
+								.ForCommandTest(@"
 SELECT	offers.Id as OfferId,
 		offers.PriceCode,
 		p.CatalogId as FullCode,
@@ -89,16 +90,17 @@ FROM core as offers
 		JOIN farm.synonymfirmcr sfc on sfc.SynonymFirmCrCode = c.synonymfirmcrcode
 		JOIN Catalogs.Products p on p.Id = c.ProductId");
 
-						foreach (KeyValuePair<string, List<string>> pair in groupedValues)
-							builder.AddCriteria(Utils.StringArrayToQuery(pair.Value, columnNameMapping[pair.Key]));
+							foreach (KeyValuePair<string, List<string>> pair in groupedValues)
+								builder.AddCriteria(Utils.StringArrayToQuery(pair.Value, columnNameMapping[pair.Key]));
 
-						builder
-							.AddOrderMultiColumn(sortField, sortOrder)
-							.Limit(limit, selStart);
+							builder
+								.AddOrderMultiColumn(sortField, sortOrder)
+								.Limit(limit, selStart);
 
-						result = helper
-									.Command(builder.GetSql())
-									.Fill();
+							result = helper
+								.Command(builder.GetSql())
+								.Fill();
+						}
 					});
 			return result;
 		}
@@ -110,13 +112,15 @@ FROM core as offers
 			With.Transaction(
 				delegate(MySqlHelper helper)
 					{
-						helper
-							.Command("call GetPrices(?ClientCode);")
-							.AddParameter("?ClientCode", GetClientCode(helper))
-							.Execute();
+						using (CleanUp.AfterGetPrices(helper))
+						{
+							helper
+								.Command("call GetPrices(?ClientCode);")
+								.AddParameter("?ClientCode", GetClientCode(helper))
+								.Execute();
 
-						SqlBuilder builder = SqlBuilder
-							.ForCommandTest(@"
+							SqlBuilder builder = SqlBuilder
+								.ForCommandTest(@"
 select	p.PriceCode as PriceCode,
 		p.PriceName as PriceName,
 		p.PriceDate as PriceDate,
@@ -138,13 +142,14 @@ select	p.PriceCode as PriceCode,
 from prices p
 	join usersettings.clientsdata cd on p.firmcode = cd.firmcode
 		join usersettings.regionaldata rd on rd.firmcode = cd.firmcode and rd.regioncode = p.regioncode")
-							.AddCriteria(Utils.StringArrayToQuery(firmName, "cd.ShortName"))
-							.AddOrder("cd.ShortName");
+								.AddCriteria(Utils.StringArrayToQuery(firmName, "cd.ShortName"))
+								.AddOrder("cd.ShortName");
 
-						result = helper
-									.Command(builder.GetSql())
-										.AddParameter("?ClientCode", GetClientCode(helper))
-										.Fill();
+							result = helper
+								.Command(builder.GetSql())
+								.AddParameter("?ClientCode", GetClientCode(helper))
+								.Fill();
+						}
 					});
 			return result;
 		}
@@ -157,14 +162,18 @@ from prices p
 				delegate (MySqlHelper helper)
 					{
 						SqlBuilder builder;
-						if (offerOnly)
+						using (CleanUp.AfterGetActivePrices(helper))
 						{
-							helper
-								.Command("CALL GetActivePrices(?ClientCode);")
-								.AddParameter("?ClientCode", GetClientCode(helper))
-								.Execute();
+							if (offerOnly)
+							{
+								helper
+									.Command("CALL GetActivePrices(?ClientCode);")
+									.AddParameter("?ClientCode", GetClientCode(helper))
+									.Execute();
 
-							builder = SqlBuilder.ForCommandTest(@"
+								builder =
+									SqlBuilder.ForCommandTest(
+										@"
 SELECT	distinct c.id as FullCode, 
 		cn.name, 
 		cf.form
@@ -174,28 +183,31 @@ FROM Catalogs.Catalog c
 	JOIN Catalogs.Products p on p.CatalogId = c.Id
 	JOIN Farm.Core0 c0 on c0.ProductId = p.Id
 		JOIN activeprices ap on ap.PriceCode = c0.PriceCode");
-						}
-						else
-						{
-							builder = SqlBuilder.ForCommandTest(@"
+							}
+							else
+							{
+								builder =
+									SqlBuilder.ForCommandTest(
+										@"
 SELECT	c.id as FullCode,  
 		cn.name, 
 		cf.form
 FROM Catalogs.Catalog c 
 	JOIN Catalogs.CatalogNames cn on cn.id = c.nameid
 	JOIN Catalogs.CatalogForms cf on cf.id = c.formid");
+							}
+
+							builder
+								.AddCriteria(Utils.StringArrayToQuery(name, "cn.Name"))
+								.AddCriteria(Utils.StringArrayToQuery(form, "cf.Form"))
+								.AddCriteria("c.Hidden = 0")
+								.Limit(limit, selStart);
+
+							result = helper
+								.Command(builder.GetSql())
+								.AddParameter("?ClientCode", GetClientCode(helper))
+								.Fill();
 						}
-
-						builder
-							.AddCriteria(Utils.StringArrayToQuery(name, "cn.Name"))
-							.AddCriteria(Utils.StringArrayToQuery(form, "cf.Form"))
-							.AddCriteria("c.Hidden = 0")
-							.Limit(limit, selStart);
-
-						result = helper
-									.Command(builder.GetSql())
-										.AddParameter("?ClientCode", GetClientCode(helper))
-										.Fill();
 					});
 			return result;
 		}
@@ -237,12 +249,14 @@ FROM Catalogs.Catalog c
 
 						dsPost = new DataSet();
 
-						helper.Command("CALL GetActivePrices(?ClientCode);")
-							.AddParameter("?ClientCode", GetClientCode(helper))
-							.Execute();
+						using (CleanUp.AfterGetActivePrices(helper))
+						{
+							helper.Command("CALL GetActivePrices(?ClientCode);")
+								.AddParameter("?ClientCode", GetClientCode(helper))
+								.Execute();
 
 
-						string commandText = @"
+							string commandText = @"
 SELECT  cd.FirmCode as ClientCode,
 		cd.RegionCode,
 		ap.PriceCode,
@@ -272,10 +286,12 @@ WHERE c.firmcode                          = if(ap.costtype=0, ap.PriceCode, ap.C
 	AND if(ap.costtype = 0, corecosts.cost is not null, c.basecost is not null)
 	AND cd.FirmCode							= ?ClientCode
 	AND c.ID in " +
-							CoreIDString;
-						helper.Command(commandText)
-							.AddParameter("?ClientCode", GetClientCode(helper))
-							.Fill(dsPost, "SummaryOrder");
+								CoreIDString;
+
+							helper.Command(commandText)
+								.AddParameter("?ClientCode", GetClientCode(helper))
+								.Fill(dsPost, "SummaryOrder");
+						}
 
 						dtSummaryOrder = dsPost.Tables["SummaryOrder"];
 
