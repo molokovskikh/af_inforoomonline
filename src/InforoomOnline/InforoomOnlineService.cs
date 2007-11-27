@@ -68,7 +68,7 @@ namespace InforoomOnline
 								.Execute();
 
 							SqlBuilder builder = SqlBuilder
-								.ForCommandTest(@"
+								.WithCommandText(@"
 SELECT	offers.Id as OfferId,
 		offers.PriceCode,
 		p.CatalogId as FullCode,
@@ -91,14 +91,12 @@ FROM core as offers
 		JOIN Catalogs.Products p on p.Id = c.ProductId");
 
 							foreach (KeyValuePair<string, List<string>> pair in groupedValues)
-								builder.AddCriteria(Utils.StringArrayToQuery(pair.Value, columnNameMapping[pair.Key]));
+								builder.AddInCriteria(columnNameMapping[pair.Key], pair.Value);
 
-							builder
+							result = builder
 								.AddOrderMultiColumn(sortField, sortOrder)
-								.Limit(limit, selStart);
-
-							result = helper
-								.Command(builder.GetSql())
+								.Limit(limit, selStart)
+								.ToCommand(helper)
 								.Fill();
 						}
 					});
@@ -119,8 +117,8 @@ FROM core as offers
 								.AddParameter("?ClientCode", GetClientCode(helper))
 								.Execute();
 
-							SqlBuilder builder = SqlBuilder
-								.ForCommandTest(@"
+							result = SqlBuilder
+								.WithCommandText(@"
 select	p.PriceCode as PriceCode,
 		p.PriceName as PriceName,
 		p.PriceDate as PriceDate,
@@ -142,11 +140,9 @@ select	p.PriceCode as PriceCode,
 from prices p
 	join usersettings.clientsdata cd on p.firmcode = cd.firmcode
 		join usersettings.regionaldata rd on rd.firmcode = cd.firmcode and rd.regioncode = p.regioncode")
-								.AddCriteria(Utils.StringArrayToQuery(firmName, "cd.ShortName"))
-								.AddOrder("cd.ShortName");
-
-							result = helper
-								.Command(builder.GetSql())
+								.AddInCriteria("cd.ShortName", firmName)
+								.AddOrder("cd.ShortName")
+								.ToCommand(helper)
 								.AddParameter("?ClientCode", GetClientCode(helper))
 								.Fill();
 						}
@@ -171,9 +167,7 @@ from prices p
 									.AddParameter("?ClientCode", GetClientCode(helper))
 									.Execute();
 
-								builder =
-									SqlBuilder.ForCommandTest(
-										@"
+								builder = SqlBuilder.WithCommandText(@"
 SELECT	distinct c.id as FullCode, 
 		cn.name, 
 		cf.form
@@ -186,9 +180,7 @@ FROM Catalogs.Catalog c
 							}
 							else
 							{
-								builder =
-									SqlBuilder.ForCommandTest(
-										@"
+								builder = SqlBuilder.WithCommandText(@"
 SELECT	c.id as FullCode,  
 		cn.name, 
 		cf.form
@@ -197,14 +189,12 @@ FROM Catalogs.Catalog c
 	JOIN Catalogs.CatalogForms cf on cf.id = c.formid");
 							}
 
-							builder
-								.AddCriteria(Utils.StringArrayToQuery(name, "cn.Name"))
-								.AddCriteria(Utils.StringArrayToQuery(form, "cf.Form"))
+							result = builder
+								.AddInCriteria("cn.Name", name)
+								.AddInCriteria("cf.Form", form)
 								.AddCriteria("c.Hidden = 0")
-								.Limit(limit, selStart);
-
-							result = helper
-								.Command(builder.GetSql())
+								.Limit(limit, selStart)
+								.ToCommand(helper)
 								.AddParameter("?ClientCode", GetClientCode(helper))
 								.Fill();
 						}
@@ -331,7 +321,7 @@ select LAST_INSERT_ID();")
 										.AddParameter("?ClientCode", drOH["ClientCode"])
 										.AddParameter("?PriceCode", drOH["PriceCode"])
 										.AddParameter("?RegionCode", drOH["RegionCode"])
-										.AddParameter("?PriceDate", drOH["PriceDate"], MySqlDbType.Datetime)
+										.AddParameter("?PriceDate", drOH["PriceDate"])
 										.AddParameter("?RowCount", drOrderList.Length)
 										.AddParameter("?ClientAddition", drOrderList[0]["Message"])
 										.ExecuteScalar<object>();
