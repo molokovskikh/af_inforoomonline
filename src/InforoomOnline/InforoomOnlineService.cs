@@ -270,11 +270,11 @@ FROM    (farm.formrules fr,
             ON corecosts.Core_Id     = c.id
               AND corecosts.PC_CostCode = ap.CostCode),
 		UserSettings.ClientsData cd
-WHERE c.firmcode                          = if(ap.costtype=0, ap.PriceCode, ap.CostCode)
-    AND fr.firmcode                         = ap.pricecode
-    AND clientsdata.firmcode                = ap.firmcode
+WHERE c.PriceCode                          = if(ap.costtype=0, ap.PriceCode, ap.CostCode)
+    AND fr.PriceCode                       = ap.pricecode
+    AND clientsdata.firmcode               = ap.firmcode
 	AND if(ap.costtype = 0, corecosts.cost is not null, c.basecost is not null)
-	AND cd.FirmCode							= ?ClientCode
+	AND cd.FirmCode						   = ?ClientCode
 	AND c.ID in " +
 								CoreIDString;
 
