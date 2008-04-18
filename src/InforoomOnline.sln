@@ -1,14 +1,14 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{0AD491B8-7584-40E8-8E58-682737CF1284}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InforoomOnline", "InforoomOnline\InforoomOnline.csproj", "{C5D0894B-BB0F-4B87-9568-915381642F58}"
 	ProjectSection(ProjectDependencies) = postProject
 		{72AFCFE8-C9E9-45FA-9698-BEE896A517A3} = {72AFCFE8-C9E9-45FA-9698-BEE896A517A3}
 		{8A680813-C83B-497A-85E6-E8F07B7D7650} = {8A680813-C83B-497A-85E6-E8F07B7D7650}
 		{80C9F352-5EED-41B2-989A-6628BCAF4D36} = {80C9F352-5EED-41B2-989A-6628BCAF4D36}
 	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{0AD491B8-7584-40E8-8E58-682737CF1284}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.MySql", "..\..\Common.MySql\src\Common.MySql\Common.MySql.csproj", "{8A680813-C83B-497A-85E6-E8F07B7D7650}"
 EndProject
@@ -41,7 +41,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Models.Tests", "..\.
 EndProject
 Global
 	GlobalSection(SourceCodeControl) = preSolution
-		SccNumberOfProjects = 9
+		SccNumberOfProjects = 7
 		SccLocalPath0 = .
 		SccProjectUniqueName1 = InforoomOnline\\InforoomOnline.csproj
 		SccLocalPath1 = .
@@ -61,18 +61,10 @@ Global
 		SccProjectUniqueName5 = InforoomOnline.Tests\\InforoomOnline.Tests.csproj
 		SccProjectName5 = \u0022$/Inforoom/NET2.0/InforoomOnline/src/InforoomOnline.Tests\u0022,\u0020KFNAAAAA
 		SccLocalPath5 = InforoomOnline.Tests
-		SccProjectUniqueName6 = ..\\..\\Common.Tools\\src\\Common.Tools\\Common.Tools.csproj
+		SccProjectUniqueName6 = ..\\..\\Common.Models\\src\\Common.Models.Tests\\Common.Models.Tests.csproj
 		SccProjectTopLevelParentUniqueName6 = InforoomOnline.sln
-		SccProjectName6 = \u0022$/Inforoom/NET2.0/Common.Tools/src/Common.Tools\u0022,\u0020NBNAAAAA
-		SccLocalPath6 = ..\\..\\Common.Tools\\src\\Common.Tools
-		SccProjectUniqueName7 = ..\\..\\Common.Tools\\src\\Common.Tools.Test\\Common.Tools.Tests.csproj
-		SccProjectTopLevelParentUniqueName7 = InforoomOnline.sln
-		SccProjectName7 = \u0022$/Inforoom/NET2.0/Common.Tools/src/Common.Tools.Test\u0022,\u0020TBNAAAAA
-		SccLocalPath7 = ..\\..\\Common.Tools\\src\\Common.Tools.Test
-		SccProjectUniqueName8 = ..\\..\\Common.Models\\src\\Common.Models.Tests\\Common.Models.Tests.csproj
-		SccProjectTopLevelParentUniqueName8 = InforoomOnline.sln
-		SccProjectName8 = \u0022$/Inforoom/NET2.0/Common.Models/src/Common.Models.Tests\u0022,\u0020ZGNAAAAA
-		SccLocalPath8 = ..\\..\\Common.Models\\src\\Common.Models.Tests
+		SccProjectName6 = \u0022$/Inforoom/NET2.0/Common.Models/src/Common.Models.Tests\u0022,\u0020ZGNAAAAA
+		SccLocalPath6 = ..\\..\\Common.Models\\src\\Common.Models.Tests
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
