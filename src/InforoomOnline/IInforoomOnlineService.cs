@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using System.ServiceModel;
 using System.ServiceModel.Activation;
+using InforoomOnline.Logging;
 
 namespace InforoomOnline
 {
@@ -9,7 +10,7 @@ namespace InforoomOnline
 	[ServiceContract]
 	public interface IInforoomOnlineService
 	{
-		[OperationContract]
+        [OperationContract, OfferRowCalculator]
 		DataSet GetOffers(string[] rangeField, 
 						  string[] rangeValue, 
 						  bool newEar, 
@@ -17,10 +18,10 @@ namespace InforoomOnline
 						  string[] sortOrder,
 		                  int limit, int selStart);
 
-		[OperationContract]
+		[OperationContract, RowCalculator]
 		DataSet GetPriceList(string[] firmName);
 
-		[OperationContract]
+        [OperationContract, RowCalculator]
 		DataSet GetNamesFromCatalog(string[] name, string[] form, bool offerOnly, int limit, int selStart);
 
 		[OperationContract]

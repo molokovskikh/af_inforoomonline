@@ -1,32 +1,52 @@
 using System;
-using System.Collections.Generic;
-using System.Data;
 using System.ServiceModel;
-using System.Text;
 using Castle.Core.Interceptor;
+using Common.Models;
+using Common.Models.Repositories;
 using InforoomOnline.Models;
+using log4net;
 
 namespace InforoomOnline.Logging
 {
-	public class ResultLogingInterceptor : IInterceptor
-	{
-		public void Intercept(IInvocation invocation)
-		{
-			DateTime begin = DateTime.Now;
-			invocation.Proceed();
-			RowCalculatorAttribute rowCalculator =
-				(RowCalculatorAttribute) Attribute.GetCustomAttribute(invocation.Method, typeof (RowCalculatorAttribute), true);
-			if (rowCalculator != null)
-			{
-				ServiceLogEntity serviceLogEntity = new ServiceLogEntity();
-				serviceLogEntity.LogTime = DateTime.Now;
-				serviceLogEntity.MethodName = invocation.Method.Name;
-				serviceLogEntity.ProcessingTime = (begin - DateTime.Now).Milliseconds;
-				serviceLogEntity.RowCount = rowCalculator.GetRowCount(invocation.ReturnValue);
-				serviceLogEntity.UserName = ServiceSecurityContext.Current.PrimaryIdentity.Name;
-				serviceLogEntity.ServiceName = "";
-				serviceLogEntity.Host = "";
-			}
-		}
-	}
+    public class ResultLogingInterceptor : IInterceptor
+    {
+        private readonly ILog _log = LogManager.GetLogger(typeof (ResultLogingInterceptor));
+
+        public void Intercept(IInvocation invocation)
+        {
+            var begin = DateTime.Now;
+            invocation.Proceed();
+            try
+            {
+                var rowCalculator =
+                    (RowCalculatorAttribute)
+                    Attribute.GetCustomAttribute(invocation.Method, typeof (RowCalculatorAttribute), true);
+
+                var serviceLogEntity = new ServiceLogEntity
+                                           {
+                                               LogTime = DateTime.Now,
+                                               MethodName = invocation.Method.Name,
+                                               ProcessingTime = (DateTime.Now - begin).Milliseconds,
+                                               RowCount =
+                                                   rowCalculator != null
+                                                       ? rowCalculator.GetRowCount(invocation.ReturnValue)
+                                                       : 0,
+#if !DEBUG
+                                               UserName = ServiceSecurityContext.Current.PrimaryIdentity.Name,
+#else
+                                               UserName = "",
+#endif
+                                               ServiceName = "InforoomOnline",
+                                           };
+                serviceLogEntity
+                    .SerializeArguments(invocation.Arguments)
+                    .GetHostFromOprationContext(OperationContext.Current);
+                IoC.Resolve<IRepository<ServiceLogEntity>>().Save(serviceLogEntity);
+            }
+            catch(Exception e)
+            {
+                _log.Error("Ошибка логирования работы сервиса", e);
+            }
+        }
+    }
 }

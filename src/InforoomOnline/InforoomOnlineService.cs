@@ -4,11 +4,8 @@ using System.Data;
 using System.ServiceModel;
 using System.ServiceModel.Activation;
 using Castle.Core;
-using Common.Models;
-using Common.Models.Repositories;
 using Common.MySql;
 using InforoomOnline.Logging;
-using MySql.Data.MySqlClient;
 using MySqlHelper=Common.MySql.MySqlHelper;
 
 namespace InforoomOnline
@@ -18,7 +15,6 @@ namespace InforoomOnline
 	[AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Required)]
 	public class InforoomOnlineService : IInforoomOnlineService
 	{
-		[OfferRowCalculator]
 		public DataSet GetOffers(string[] rangeField,
 		                         string[] rangeValue,
 		                         bool newEar,
@@ -28,47 +24,49 @@ namespace InforoomOnline
 		                         int selStart)
 		{
 			DataSet result = null;
-			With.Transaction(
-				delegate(MySqlHelper helper)
-					{
-						Dictionary<string, string> columnNameMapping = new Dictionary<string, string>();
-                        columnNameMapping.Add("offerid", "offers.Id");
-                        columnNameMapping.Add("pricecode", "offers.PriceCode");
-						columnNameMapping.Add("fullcode", "p.CatalogId");
-                        columnNameMapping.Add("name", "s.synonym");
-						columnNameMapping.Add("crname", "sfc.synonym");
-						columnNameMapping.Add("code", "c.Code");
-						columnNameMapping.Add("codecr", "c.CodeCr");
-                        columnNameMapping.Add("unit", "c.Unit");
-                        columnNameMapping.Add("volume", "c.Volume");
-                        columnNameMapping.Add("quantity", "c.Quantity");
-                        columnNameMapping.Add("note", "c.Note");
-                        columnNameMapping.Add("period", "c.Period");
-                        columnNameMapping.Add("doc", "c.Doc");
-                        columnNameMapping.Add("junk", "c.Junk");
-                        columnNameMapping.Add("cost", "offers.Cost");
+            With.Transaction(
+                delegate(MySqlHelper helper)
+                {
+                    var columnNameMapping = new Dictionary<string, string>
+                                                    {
+                                                        {"offerid", "offers.Id"},
+                                                        {"pricecode", "offers.PriceCode"},
+                                                        {"fullcode", "p.CatalogId"},
+                                                        {"name", "s.synonym"},
+                                                        {"crname", "sfc.synonym"},
+                                                        {"code", "c.Code"},
+                                                        {"codecr", "c.CodeCr"},
+                                                        {"unit", "c.Unit"},
+                                                        {"volume", "c.Volume"},
+                                                        {"quantity", "c.Quantity"},
+                                                        {"note", "c.Note"},
+                                                        {"period", "c.Period"},
+                                                        {"doc", "c.Doc"},
+                                                        {"junk", "c.Junk"},
+                                                        {"cost", "offers.Cost"}
+                                                    };
 
-						ValidateFieldNames(columnNameMapping, rangeField);
-						ValidateFieldNames(columnNameMapping, sortField);
-						ValidateSortDirection(sortOrder);
+                    ValidateFieldNames(columnNameMapping, rangeField);
+                    ValidateFieldNames(columnNameMapping, sortField);
+                    ValidateSortDirection(sortOrder);
 
-						Dictionary<string, List<string>> groupedValues = GroupValues(rangeField, rangeValue);
+                    var groupedValues = GroupValues(rangeField, rangeValue);
 
-						if (rangeField != null
-							&& (rangeValue == null
-								|| rangeField.Length != rangeValue.Length))
-							throw new Exception("Количество полей для фильтрации не совпадает с количеством значение по которым производится фильтрация");
+                    if (rangeField != null
+                        && (rangeValue == null
+                            || rangeField.Length != rangeValue.Length))
+                        throw new Exception("Количество полей для фильтрации не совпадает с количеством значение по которым производится фильтрация");
 
-						using (CleanUp.AfterGetOffers(helper))
-						{
-							helper
-								.Command("Usersettings.GetOffers", CommandType.StoredProcedure)
-								.AddParameter("?ClientCodeParam", GetClientCode(helper))
-								.AddParameter("?FreshOnly", false)
-								.Execute();
+                    using (CleanUp.AfterGetOffers(helper))
+                    {
+                        helper
+                            .Command("Usersettings.GetOffers", CommandType.StoredProcedure)
+                            .AddParameter("?ClientCodeParam", GetClientCode(helper))
+                            .AddParameter("?FreshOnly", false)
+                            .Execute();
 
-							SqlBuilder builder = SqlBuilder
-								.WithCommandText(@"
+                        var builder = SqlBuilder
+                            .WithCommandText(@"
 SELECT	offers.Id as OfferId,
 		offers.PriceCode,
 		p.CatalogId as FullCode,
@@ -82,7 +80,7 @@ SELECT	offers.Id as OfferId,
 		c.Note,
 		c.Period,
 		c.Doc,
-		length(c.Junk) > 0 as Junk,
+		c.Junk,
 		offers.Cost 
 FROM core as offers
     JOIN farm.core0 as c on c.id = offers.id
@@ -90,20 +88,19 @@ FROM core as offers
 		JOIN farm.synonymfirmcr sfc on sfc.SynonymFirmCrCode = c.synonymfirmcrcode
 		JOIN Catalogs.Products p on p.Id = c.ProductId");
 
-							foreach (KeyValuePair<string, List<string>> pair in groupedValues)
-								builder.AddInCriteria(columnNameMapping[pair.Key], pair.Value);
+                        foreach (var pair in groupedValues)
+                            builder.AddInCriteria(columnNameMapping[pair.Key], pair.Value);
 
-							result = builder
-								.AddOrderMultiColumn(sortField, sortOrder)
-								.Limit(limit, selStart)
-								.ToCommand(helper)
-								.Fill();
-						}
-					});
+                        result = builder
+                            .AddOrderMultiColumn(sortField, sortOrder)
+                            .Limit(limit, selStart)
+                            .ToCommand(helper)
+                            .Fill();
+                    }
+                });
 			return result;
 		}
 
-		[RowCalculator]
 		public DataSet GetPriceList(string[] firmName)
 		{
 			DataSet result = null;
@@ -150,7 +147,6 @@ from prices p
 			return result;
 		}
 
-		[RowCalculator]
 		public DataSet GetNamesFromCatalog(string[] name, string[] form, bool offerOnly, int limit, int selStart)
 		{
 			DataSet result = null;
@@ -202,42 +198,35 @@ FROM Catalogs.Catalog c
 			return result;
 		}
 
-		[RowCalculator]
 		public DataSet PostOrder(long[] offerId, int[] quantity, string[] message)
 		{
 			DataSet result = null;
 			With.Transaction(
 				delegate(MySqlHelper helper)
 					{
-						Dictionary<long, bool> offersStatus = new Dictionary<long, bool>();
+						var offersStatus = new Dictionary<long, bool>();
 
-						foreach (long id in offerId)
+						foreach (var id in offerId)
 							offersStatus.Add(id, false);
 
-						int Index;
-						DataSet dsRes;
-						DataTable dtPricesRes;
-
-						DataSet dsPost;
-						DataTable dtSummaryOrder;
-						DataTable dtOrderHead;
-
-
-						string CoreIDString = "(";
-						foreach (long ID in offerId)
+					    var CoreIDString = "(";
+					    var index = 0;
+						foreach (var ID in offerId)
 						{
+                            if (index >= quantity.Length || quantity[index] < 1)
+                                continue;
+
 							if ((CoreIDString.Length > 1) && (ID > 0))
-							{
 								CoreIDString += ", ";
-							}
+
 							if (ID > 0)
-							{
 								CoreIDString += ID.ToString();
-							}
+
+						    index++;
 						}
 						CoreIDString += ")";
 
-						dsPost = new DataSet();
+						var dsPost = new DataSet();
 
 						using (CleanUp.AfterGetActivePrices(helper))
 						{
@@ -246,7 +235,7 @@ FROM Catalogs.Catalog c
 								.Execute();
 
 
-							string commandText = @"
+							var commandText = @"
 SELECT  cd.FirmCode as ClientCode,
 		cd.RegionCode,
 		ap.PriceCode,
@@ -259,101 +248,92 @@ SELECT  cd.FirmCode as ClientCode,
         c.Code,
 		c.CodeCr,
 		0 Quantity,
-        length(c.Junk) > 0 Junk,
-		length(c.Await) > 0 Await,
-		c.BaseCost,
-		round(if(if(ap.costtype=0, corecosts.cost, c.basecost) * ap.UpCost < c.minboundcost, c.minboundcost, if(ap.costtype=0, corecosts.cost, c.basecost) * ap.UpCost),2) as Cost
-FROM    (farm.formrules fr,
-        usersettings.clientsdata,
-        (farm.core0 c, ActivePrices ap)
-          LEFT JOIN farm.corecosts
-            ON corecosts.Core_Id     = c.id
-              AND corecosts.PC_CostCode = ap.CostCode),
-		UserSettings.ClientsData cd
-WHERE c.PriceCode                          = if(ap.costtype=0, ap.PriceCode, ap.CostCode)
-    AND fr.PriceCode                       = ap.pricecode
-    AND clientsdata.firmcode               = ap.firmcode
-	AND if(ap.costtype = 0, corecosts.cost is not null, c.basecost is not null)
-	AND cd.FirmCode						   = ?ClientCode
-	AND c.ID in " +
-								CoreIDString;
+        c.Junk,
+		c.Await,
+		if(if(round(cc.Cost*ap.UpCost,2)<MinBoundCost, MinBoundCost, round(cc.Cost*ap.UpCost,2))>MaxBoundCost,MaxBoundCost, if(round(cc.Cost*ap.UpCost,2)<MinBoundCost, MinBoundCost, round(cc.Cost*ap.UpCost,2))) as Cost
+FROM (farm.core0 c, usersettings.clientsdata cd)
+  JOIN ActivePrices ap on c.PriceCode = ap.PriceCode
+    JOIN farm.CoreCosts cc on cc.Core_Id = c.Id and cc.PC_CostCode = ap.CostCode
+WHERE   cd.FirmCode	= ?ClientCode
+	    AND c.ID in " + CoreIDString;
 
 							helper.Command(commandText)
 								.AddParameter("?ClientCode", GetClientCode(helper))
 								.Fill(dsPost, "SummaryOrder");
 						}
 
-						dtSummaryOrder = dsPost.Tables["SummaryOrder"];
+						var dtSummaryOrder = dsPost.Tables["SummaryOrder"];
 
 						foreach (DataRow row in dtSummaryOrder.Rows)
 						{
-							long toOrderOfferId = Convert.ToInt64(row["Id"]);
+							var toOrderOfferId = Convert.ToInt64(row["Id"]);
 							offersStatus[toOrderOfferId] = true;
 						}
 
-						DataRow[] drs;
 						dtSummaryOrder.Columns.Add(new DataColumn("Message", typeof (string)));
-						for (int i = 0; i < offerId.Length; i++)
+						for (var i = 0; i < offerId.Length; i++)
 						{
-							drs = dtSummaryOrder.Select("Id = " + offerId[i]);
-							if (drs.Length > 0)
-							{
-								drs[0]["Quantity"] = quantity[i];
-								if ((message != null) && (message.Length > i))
-									drs[0]["Message"] = message[i];
-							}
+							var drs = dtSummaryOrder.Select("Id = " + offerId[i]);
+
+						    if (drs.Length <= 0) 
+                                continue;
+
+						    drs[0]["Quantity"] = quantity[i];
+						    if ((message != null) && (message.Length > i))
+						        drs[0]["Message"] = message[i];
 						}
 
-						dtOrderHead = dtSummaryOrder.DefaultView.ToTable(true, "ClientCode", "RegionCode", "PriceCode", "PriceDate");
+						var dtOrderHead = dtSummaryOrder.DefaultView.ToTable(true, "ClientCode", "RegionCode", "PriceCode", "PriceDate");
 						dtOrderHead.Columns.Add(new DataColumn("OrderID", typeof (long)));
 
 						DataRow[] drOrderList;
 						foreach (DataRow drOH in dtOrderHead.Rows)
 						{
 							drOrderList = dtSummaryOrder.Select("PriceCode = " + drOH["PriceCode"]);
-							if (drOrderList.Length > 0)
-							{
-								drOH["OrderID"] =
-									helper.Command(@"
+
+						    if (drOrderList.Length <= 0) 
+                                continue;
+
+						    drOH["OrderID"] =
+						        helper.Command(@"
 insert into orders.ordershead (WriteTime, ClientCode, PriceCode, RegionCode, PriceDate, RowCount, ClientAddition, Processed)
 values(now(), ?ClientCode, ?PriceCode, ?RegionCode, ?PriceDate, ?RowCount, ?ClientAddition, 0);
 select LAST_INSERT_ID();")
-										.AddParameter("?ClientCode", drOH["ClientCode"])
-										.AddParameter("?PriceCode", drOH["PriceCode"])
-										.AddParameter("?RegionCode", drOH["RegionCode"])
-										.AddParameter("?PriceDate", drOH["PriceDate"])
-										.AddParameter("?RowCount", drOrderList.Length)
-										.AddParameter("?ClientAddition", drOrderList[0]["Message"])
-										.ExecuteScalar<object>();
+						            .AddParameter("?ClientCode", drOH["ClientCode"])
+						            .AddParameter("?PriceCode", drOH["PriceCode"])
+						            .AddParameter("?RegionCode", drOH["RegionCode"])
+						            .AddParameter("?PriceDate", drOH["PriceDate"])
+						            .AddParameter("?RowCount", drOrderList.Length)
+						            .AddParameter("?ClientAddition", drOrderList[0]["Message"])
+						            .ExecuteScalar<object>();
 
 
-								foreach (DataRow drOL in drOrderList)
-								{
-									helper.Command(@"
+						    foreach (var drOL in drOrderList)
+						    {
+						        helper.Command(@"
 insert into orders.orderslist (OrderID, ProductId, CodeFirmCr, SynonymCode, SynonymFirmCrCode, Code, CodeCr, Quantity, Junk, Await, Cost) values (?OrderID, ?ProductId, ?CodeFirmCr, ?SynonymCode, ?SynonymFirmCrCode, ?Code, ?CodeCr, ?Quantity, ?Junk, ?Await, ?Cost);")
-										.AddParameter("?OrderID", drOH["OrderID"])
-										.AddParameter("?ProductId", drOL["ProductId"])
-										.AddParameter("?CodeFirmCr", drOL["CodeFirmCr"])
-										.AddParameter("?SynonymCode", drOL["SynonymCode"])
-										.AddParameter("?SynonymFirmCrCode", drOL["SynonymFirmCrCode"])
-										.AddParameter("?Code", drOL["Code"])
-										.AddParameter("?CodeCr", drOL["CodeCr"])
-										.AddParameter("?Junk", drOL["Junk"])
-										.AddParameter("?Await", drOL["Await"])
-										.AddParameter("?Cost", drOL["Cost"])
-										.AddParameter("?Quantity", drOL["Quantity"])
-										.Execute();
-								}
-							}
+						            .AddParameter("?OrderID", drOH["OrderID"])
+						            .AddParameter("?ProductId", drOL["ProductId"])
+						            .AddParameter("?CodeFirmCr", drOL["CodeFirmCr"])
+						            .AddParameter("?SynonymCode", drOL["SynonymCode"])
+						            .AddParameter("?SynonymFirmCrCode", drOL["SynonymFirmCrCode"])
+						            .AddParameter("?Code", drOL["Code"])
+						            .AddParameter("?CodeCr", drOL["CodeCr"])
+						            .AddParameter("?Junk", drOL["Junk"])
+						            .AddParameter("?Await", drOL["Await"])
+						            .AddParameter("?Cost", drOL["Cost"])
+						            .AddParameter("?Quantity", drOL["Quantity"])
+						            .Execute();
+						    }
 						}
 
-						DataSet toResult = new DataSet();
+						var toResult = new DataSet();
 						toResult.Tables.Add();
 						toResult.Tables[0].Columns.Add("OfferId", typeof(long));
 						toResult.Tables[0].Columns.Add("Posted", typeof(bool));
-						foreach (KeyValuePair<long, bool> offer in offersStatus)
+						foreach (var offer in offersStatus)
 						{
-							DataRow row = toResult.Tables[0].NewRow();
+							var row = toResult.Tables[0].NewRow();
 							row["OfferId"] = offer.Key;
 							row["Posted"] = offer.Value;
 							toResult.Tables[0].Rows.Add(row);
@@ -366,41 +346,41 @@ insert into orders.orderslist (OrderID, ProductId, CodeFirmCr, SynonymCode, Syno
 
 		private static Dictionary<string, List<string>> GroupValues(IEnumerable<string> fields, string[] values)
 		{
-				Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
-				int i = 0;
-				if (fields != null)
-				{
-					foreach (string field in fields)
-					{
-						if (!result.ContainsKey(field.ToLower()))
-							result.Add(field.ToLower(), new List<string>());
-                        result[field.ToLower()].Add(values[i]);
-						i++;
-					}
-				}
+		    var result = new Dictionary<string, List<string>>();
+		    var i = 0;
+		    if (fields != null)
+		    {
+		        foreach (var field in fields)
+		        {
+		            if (!result.ContainsKey(field.ToLower()))
+		                result.Add(field.ToLower(), new List<string>());
+		            result[field.ToLower()].Add(values[i]);
+		            i++;
+		        }
+		    }
 			return result;
 		}
 
 		private static void ValidateFieldNames(IDictionary<string, string> mapping,
 		                                       IEnumerable<string> fieldsToValidate)
 		{
-			if (fieldsToValidate != null)
-			{
-				foreach (string fieldName in fieldsToValidate)
-					if (!mapping.ContainsKey(fieldName.ToLower()))
-						throw new Exception(String.Format("Не найдено сопоставление для поля {0}", fieldName));
-			}
+			if (fieldsToValidate == null)
+                return;
+
+		    foreach (var fieldName in fieldsToValidate)
+		        if (!mapping.ContainsKey(fieldName.ToLower()))
+		            throw new Exception(String.Format("Не найдено сопоставление для поля {0}", fieldName));
 		}
 
 		private static void ValidateSortDirection(IEnumerable<string> sortDirections)
 		{
-			if (sortDirections != null)
-			{
-				foreach (string sortDirection in sortDirections)
-					if (String.Compare(sortDirection, "asc", true) != 0
-					    && String.Compare(sortDirection, "desc", true) != 0)
-						throw new Exception(String.Format("Не верный порядок сортировки {0}", sortDirection));
-			}
+			if (sortDirections == null)
+                return;
+
+		    foreach (var sortDirection in sortDirections)
+		        if (String.Compare(sortDirection, "asc", true) != 0
+		            && String.Compare(sortDirection, "desc", true) != 0)
+		            throw new Exception(String.Format("Не верный порядок сортировки {0}", sortDirection));
 		}
 
 		private static uint GetClientCode(MySqlHelper helper)

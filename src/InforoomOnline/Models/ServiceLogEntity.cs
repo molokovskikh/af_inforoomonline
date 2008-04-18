@@ -1,73 +1,72 @@
 using System;
-using System.Collections.Generic;
+using System.IO;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
 using System.Text;
+using Newtonsoft.Json;
+using NHibernate.Mapping.Attributes;
 
 namespace InforoomOnline.Models
 {
-	public class ServiceLogEntity
-	{
-		private uint _id;
-		private string _serviceName;
-		private DateTime _logTime;
-		private string _host;
-		private string _userName;
-		private string _methodName;
-		private int _rowCount;
-		private int _processingTime;
-		private string _arguments;
+    [Class(Table = "Logs.OnlineServicesLogs", Lazy = false)]
+    public class ServiceLogEntity
+    {
+        [Id(0, Name = "Id")]
+        [Generator(1, Class = "native")]
+        public uint Id { get; set; }
 
-		public uint Id
-		{
-			get { return _id; }
-			set { _id = value; }
-		}
+        [Property]
+        public string ServiceName { get; set; }
 
-		public string ServiceName
-		{
-			get { return _serviceName; }
-			set { _serviceName = value; }
-		}
+        [Property]
+        public DateTime LogTime { get; set; }
 
-		public DateTime LogTime
-		{
-			get { return _logTime; }
-			set { _logTime = value; }
-		}
+        [Property]
+        public string Host { get; set; }
 
-		public string Host
-		{
-			get { return _host; }
-			set { _host = value; }
-		}
+        [Property]
+        public string UserName { get; set; }
 
-		public string UserName
-		{
-			get { return _userName; }
-			set { _userName = value; }
-		}
+        [Property]
+        public string MethodName { get; set; }
 
-		public string MethodName
-		{
-			get { return _methodName; }
-			set { _methodName = value; }
-		}
+        [Property]
+        public int RowCount { get; set; }
 
-		public int RowCount
-		{
-			get { return _rowCount; }
-			set { _rowCount = value; }
-		}
+        [Property]
+        public int ProcessingTime { get; set; }
 
-		public int ProcessingTime
-		{
-			get { return _processingTime; }
-			set { _processingTime = value; }
-		}
+        [Property]
+        public string Arguments { get; set; }
 
-		public string Arguments
-		{
-			get { return _arguments; }
-			set { _arguments = value; }
-		}
-	}
+        public ServiceLogEntity SerializeArguments(object[] arguments)
+        {
+            var serializer = new JsonSerializer();
+            
+            var builder = new StringBuilder();
+            serializer.Converters.Add(new DateTimeConverter());
+            serializer.Serialize(new StringWriter(builder), arguments);
+            Arguments = builder.ToString();
+            return this;
+        }
+
+        public ServiceLogEntity GetHostFromOprationContext(OperationContext context)
+        {
+            Host = ((RemoteEndpointMessageProperty) context.IncomingMessageProperties[RemoteEndpointMessageProperty.Name]).Address;
+            return this;
+        }
+    }
+
+    public class DateTimeConverter : JsonConverter
+    {
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof (DateTime);
+        }
+
+        public override void WriteJson(JsonWriter writer, object value)
+        {
+            writer.WriteValue(value.ToString());
+        }
+    }
 }
