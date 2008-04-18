@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:tns="http://tempuri.org/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" name="InforoomOnlineService" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://tempuri.org/Imports">
+      <xsd:import schemaLocation="http://localhost:54860/InforoomOnlineService.svc?xsd=xsd0" namespace="http://tempuri.org/" />
+      <xsd:import schemaLocation="http://localhost:54860/InforoomOnlineService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import schemaLocation="http://localhost:54860/InforoomOnlineService.svc?xsd=xsd2" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+      <xsd:import schemaLocation="http://localhost:54860/InforoomOnlineService.svc?xsd=xsd3" />
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="IInforoomOnlineService_GetOffers_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetOffers" />
+  </wsdl:message>
+  <wsdl:message name="IInforoomOnlineService_GetOffers_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetOffersResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInforoomOnlineService_GetPriceList_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetPriceList" />
+  </wsdl:message>
+  <wsdl:message name="IInforoomOnlineService_GetPriceList_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetPriceListResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInforoomOnlineService_GetNamesFromCatalog_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetNamesFromCatalog" />
+  </wsdl:message>
+  <wsdl:message name="IInforoomOnlineService_GetNamesFromCatalog_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetNamesFromCatalogResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInforoomOnlineService_PostOrder_InputMessage">
+    <wsdl:part name="parameters" element="tns:PostOrder" />
+  </wsdl:message>
+  <wsdl:message name="IInforoomOnlineService_PostOrder_OutputMessage">
+    <wsdl:part name="parameters" element="tns:PostOrderResponse" />
+  </wsdl:message>
+  <wsdl:portType name="IInforoomOnlineService">
+    <wsdl:operation name="GetOffers">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetOffers" message="tns:IInforoomOnlineService_GetOffers_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetOffersResponse" message="tns:IInforoomOnlineService_GetOffers_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetPriceList">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetPriceList" message="tns:IInforoomOnlineService_GetPriceList_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetPriceListResponse" message="tns:IInforoomOnlineService_GetPriceList_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetNamesFromCatalog">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetNamesFromCatalog" message="tns:IInforoomOnlineService_GetNamesFromCatalog_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetNamesFromCatalogResponse" message="tns:IInforoomOnlineService_GetNamesFromCatalog_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="PostOrder">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInforoomOnlineService/PostOrder" message="tns:IInforoomOnlineService_PostOrder_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInforoomOnlineService/PostOrderResponse" message="tns:IInforoomOnlineService_PostOrder_OutputMessage" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="BasicHttpBinding_IInforoomOnlineService" type="tns:IInforoomOnlineService">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="GetOffers">
+      <soap:operation soapAction="http://tempuri.org/IInforoomOnlineService/GetOffers" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetPriceList">
+      <soap:operation soapAction="http://tempuri.org/IInforoomOnlineService/GetPriceList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetNamesFromCatalog">
+      <soap:operation soapAction="http://tempuri.org/IInforoomOnlineService/GetNamesFromCatalog" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="PostOrder">
+      <soap:operation soapAction="http://tempuri.org/IInforoomOnlineService/PostOrder" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="InforoomOnlineService">
+    <wsdl:port name="BasicHttpBinding_IInforoomOnlineService" binding="tns:BasicHttpBinding_IInforoomOnlineService">
+      <soap:address location="http://localhost:54860/InforoomOnlineService.svc" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
