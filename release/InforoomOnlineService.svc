@@ -1,2 +1,2 @@
 ﻿<% @ServiceHost Service="InforoomOnlineService" 
-	Factory="InforoomOnline.TestHostFactory, InforoomOnline" %>
+	Factory="Castle.Facilities.WcfIntegration.WindsorServiceHostFactory, Castle.Facilities.WcfIntegration" %>
