@@ -3,7 +3,7 @@
 
 	<property name="ProjectName" value="InforoomOnline" />
 	<property name="VssDbPath" value="\\offdc\VSS\Inforoom\srcsafe.ini" />
-	<property name="VssPath" value="$/inforoom/kvasov/InforoomOnline/release/" />
+	<property name="VssPath" value="$/inforoom/NET2.0/InforoomOnline/release/" />
 	<property name="ReleasePath" value="..\..\release\" />
 		
 
