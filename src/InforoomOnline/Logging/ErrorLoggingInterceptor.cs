@@ -1,4 +1,5 @@
 using System;
+using System.ServiceModel;
 using Castle.Core.Interceptor;
 using log4net;
 
@@ -16,7 +17,8 @@ namespace InforoomOnline.Logging
 			}
 			catch(Exception ex)
 			{
-				_log.Error("Ошибка в сервисе InforoomOnline", ex);
+				if (!(ex is FaultException))
+					_log.Error("Ошибка в сервисе InforoomOnline", ex);
 				throw;
 			}
 		}

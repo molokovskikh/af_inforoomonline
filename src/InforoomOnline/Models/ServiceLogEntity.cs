@@ -50,7 +50,7 @@ namespace InforoomOnline.Models
             return this;
         }
 
-        public ServiceLogEntity GetHostFromOprationContext(OperationContext context)
+        public ServiceLogEntity GetHostFromOperationContext(OperationContext context)
         {
             Host = ((RemoteEndpointMessageProperty) context.IncomingMessageProperties[RemoteEndpointMessageProperty.Name]).Address;
             return this;

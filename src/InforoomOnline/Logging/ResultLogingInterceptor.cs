@@ -31,16 +31,12 @@ namespace InforoomOnline.Logging
                                                    rowCalculator != null
                                                        ? rowCalculator.GetRowCount(invocation.ReturnValue)
                                                        : 0,
-#if !DEBUG
-                                               UserName = ServiceSecurityContext.Current.PrimaryIdentity.Name,
-#else
-                                               UserName = "",
-#endif
+											   UserName = ServiceSecurityContext.Current.PrimaryIdentity.Name,
                                                ServiceName = "InforoomOnline",
                                            };
                 serviceLogEntity
                     .SerializeArguments(invocation.Arguments)
-                    .GetHostFromOprationContext(OperationContext.Current);
+                    .GetHostFromOperationContext(OperationContext.Current);
                 IoC.Resolve<IRepository<ServiceLogEntity>>().Save(serviceLogEntity);
             }
             catch(Exception e)

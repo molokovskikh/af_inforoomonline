@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.ServiceModel;
 using System.ServiceModel.Activation;
 using Castle.Core;
 using Common.MySql;
@@ -10,9 +9,11 @@ using MySqlHelper=Common.MySql.MySqlHelper;
 
 namespace InforoomOnline
 {
-	[Interceptor(typeof(ErrorLoggingInterceptor))]
-	[Interceptor(typeof(ResultLogingInterceptor))]
-	[AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Required)]
+	[
+		Interceptor(typeof(ErrorLoggingInterceptor)),
+		Interceptor(typeof(ResultLogingInterceptor)),
+		AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Required)
+	]
 	public class InforoomOnlineService : IInforoomOnlineService
 	{
 		public DataSet GetOffers(string[] rangeField,
@@ -226,12 +227,19 @@ FROM Catalogs.Catalog c
 						}
 						CoreIDString += ")";
 
+
+						var clientCode = GetClientCode(helper);
 						var dsPost = new DataSet();
+						var submit = helper
+										.Command("select SubmitOrders and AllowSubmitOrders from usersettings.RetClientsSet where clientcode = ?ClientCode")
+										.AddParameter("?ClientCode", clientCode)
+										.ExecuteScalar<bool>();
 
 						using (CleanUp.AfterGetActivePrices(helper))
 						{
-							helper.Command("CALL GetActivePrices(?ClientCode);")
-								.AddParameter("?ClientCode", GetClientCode(helper))
+							helper
+								.Command("CALL GetActivePrices(?ClientCode);")
+								.AddParameter("?ClientCode", clientCode)
 								.Execute();
 
 
@@ -279,7 +287,7 @@ WHERE   cd.FirmCode	= ?ClientCode
                                 continue;
 
 						    drs[0]["Quantity"] = quantity[i];
-						    if ((message != null) && (message.Length > i))
+						    if (message != null && message.Length > i)
 						        drs[0]["Message"] = message[i];
 						}
 
@@ -296,8 +304,10 @@ WHERE   cd.FirmCode	= ?ClientCode
 
 						    drOH["OrderID"] =
 						        helper.Command(@"
-insert into orders.ordershead (WriteTime, ClientCode, PriceCode, RegionCode, PriceDate, RowCount, ClientAddition, Processed)
-values(now(), ?ClientCode, ?PriceCode, ?RegionCode, ?PriceDate, ?RowCount, ?ClientAddition, 0);
+insert into orders.ordershead (WriteTime, ClientCode, PriceCode, RegionCode, PriceDate, RowCount, ClientAddition, Processed, Submited, SubmitDate)
+values(now(), ?ClientCode, ?PriceCode, ?RegionCode, ?PriceDate, ?RowCount, ?ClientAddition, 0, ?Submited, ?SubmitDate);
+
+
 select LAST_INSERT_ID();")
 						            .AddParameter("?ClientCode", drOH["ClientCode"])
 						            .AddParameter("?PriceCode", drOH["PriceCode"])
@@ -305,13 +315,16 @@ select LAST_INSERT_ID();")
 						            .AddParameter("?PriceDate", drOH["PriceDate"])
 						            .AddParameter("?RowCount", drOrderList.Length)
 						            .AddParameter("?ClientAddition", drOrderList[0]["Message"])
-						            .ExecuteScalar<object>();
+									.AddParameter("?Submited", submit ? 0 : 1)
+									.AddParameter("?SubmitDate", submit ? null : new DateTime?(DateTime.Now))
+						            .ExecuteScalar();
 
 
 						    foreach (var drOL in drOrderList)
 						    {
 						        helper.Command(@"
-insert into orders.orderslist (OrderID, ProductId, CodeFirmCr, SynonymCode, SynonymFirmCrCode, Code, CodeCr, Quantity, Junk, Await, Cost) values (?OrderID, ?ProductId, ?CodeFirmCr, ?SynonymCode, ?SynonymFirmCrCode, ?Code, ?CodeCr, ?Quantity, ?Junk, ?Await, ?Cost);")
+insert into orders.orderslist (OrderID, ProductId, CodeFirmCr, SynonymCode, SynonymFirmCrCode, Code, CodeCr, Quantity, Junk, Await, Cost) 
+values (?OrderID, ?ProductId, ?CodeFirmCr, ?SynonymCode, ?SynonymFirmCrCode, ?Code, ?CodeCr, ?Quantity, ?Junk, ?Await, ?Cost);")
 						            .AddParameter("?OrderID", drOH["OrderID"])
 						            .AddParameter("?ProductId", drOL["ProductId"])
 						            .AddParameter("?CodeFirmCr", drOL["CodeFirmCr"])
@@ -385,8 +398,7 @@ insert into orders.orderslist (OrderID, ProductId, CodeFirmCr, SynonymCode, Syno
 
 		private static uint GetClientCode(MySqlHelper helper)
 		{
-#if !DEBUG
-			string userName = ServiceSecurityContext.Current.PrimaryIdentity.Name.Replace(@"ANALIT\", "");
+			var userName = ServiceContext.GetUserName().Replace(@"ANALIT\", "");
 
 			return helper.Command(@"
 SELECT clientcode 
@@ -394,9 +406,6 @@ FROM osuseraccessright
 WHERE OSUserName = ?UserName")
 				.AddParameter("?UserName", userName)
 				.ExecuteScalar<uint>();
-#else
-			return 2359;
-#endif
 		}
 	}
 }
