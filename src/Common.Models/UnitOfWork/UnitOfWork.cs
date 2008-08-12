@@ -13,6 +13,8 @@ namespace Common.Models
 		public UnitOfWork()
 		{
 			_sessionFactory = IoC.Resolve<ISessionFactoryHolder>().SessionFactory;
+			if (_sessionFactory == null)
+				throw new Exception("SessionFactoryHolder не инициализировал SessionFactory, забыл вызвать BuildSessionFactory?");
 			_current = this;
 			_session = _sessionFactory.OpenSession();
 		}

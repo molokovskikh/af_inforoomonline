@@ -11,8 +11,7 @@ namespace Common.Models.Repositories
 		{
 			return TransactionHelper.InTransaction(
 					CurrentSession.BeginTransaction(IsolationLevel.RepeatableRead),
-					delegate
-						{
+					() => {
 							using (InvokeGetOffers(client))
 								return CurrentSession.CreateSQLQuery(@"
 SELECT  Offer.Id as {Offer.Id}, 
@@ -44,8 +43,7 @@ ORDER BY Offer.ProductId, c.cost;")
 		{
 				return TransactionHelper.InTransaction(
 					CurrentSession.BeginTransaction(IsolationLevel.RepeatableRead),
-					delegate
-						{
+					() => {
 							using (InvokeGetOffers(client))
 								return CurrentSession.CreateSQLQuery(@"
 SELECT  Offer.Id as {Offer.Id}, 
@@ -77,8 +75,7 @@ ORDER BY Offer.ProductId, ap.firmcategory DESC, c.cost;")
 		{
 				return TransactionHelper.InTransaction(
 					CurrentSession.BeginTransaction(IsolationLevel.RepeatableRead),
-					delegate
-						{
+					() => {
 							using (InvokeGetOffers(client))
 								return CurrentSession.CreateSQLQuery(@"
 SELECT  Offer.Id as {Offer.Id}, 
@@ -105,6 +102,57 @@ WHERE Offer.Id in (:ids);
 										.SetParameterList("ids", ids)
 										.List<Offer>();
 						});
+		}
+
+		/// <summary>
+		/// предназначена для тестирования не использовать реальных в приложениях!
+		/// </summary>
+		/// <param name="client"></param>
+		/// <param name="id"></param>
+		/// <returns></returns>
+		public Offer GetById(Client client, ulong id)
+		{
+			using (IDbCommand command = CurrentSession.Connection.CreateCommand())
+			{
+				command.CommandText = String.Format("usersettings.GetOffers");
+				command.CommandType = CommandType.StoredProcedure;
+
+				IDbDataParameter parameter = command.CreateParameter();
+				parameter.ParameterName = "ClientCodeParam";
+				parameter.Value = client.FirmCode;
+				command.Parameters.Add(parameter);
+
+				parameter = command.CreateParameter();
+				parameter.ParameterName = "FreshOnly";
+				parameter.Value = false;
+				command.Parameters.Add(parameter);
+
+				command.ExecuteNonQuery();
+			}
+			return
+				CurrentSession.CreateSQLQuery(@"
+SELECT  Offer.Id as {Offer.Id}, 
+		Offer.ProductId as {Offer.ProductId},
+		Offer.CodeFirmCr as {Offer.CodeFirmCr},
+		Offer.SynonymCode as {Offer.SynonymCode},
+		Offer.SynonymFirmCrCode as {Offer.SynonymFirmCrCode},
+		cast(if(Offer.Quantity = '' or Offer.Quantity is null or Offer.Quantity < 0, 999999, Offer.Quantity) as UNSIGNED) as {Offer.Quantity},
+		Offer.Code as {Offer.Code}, 
+		Offer.CodeCr as {Offer.CodeCr},
+		Offer.Junk as {Offer.Junk},
+		Offer.Await as {Offer.Await},
+		c.Cost as {Offer.Cost},
+		c.PriceCode as {Offer.PriceList},
+		Offer.RequestRatio as {Offer.RequestRatio},
+		Offer.OrderCost as {Offer.OrderCost},
+		Offer.MinOrderCount as {Offer.MinOrderCount}
+FROM usersettings.Core c
+	JOIN Farm.Core0 as Offer ON c.Id = Offer.Id
+		JOIN usersettings.activeprices ap on ap.pricecode = c.pricecode
+WHERE Offer.Id = :id")
+					.AddEntity("Offer", typeof (Offer))
+					.SetParameter("id", id)
+					.UniqueResult<Offer>();
 		}
 
 		private static IDisposable InvokeGetOffers(Client client)

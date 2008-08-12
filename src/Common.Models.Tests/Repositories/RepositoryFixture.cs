@@ -1,6 +1,8 @@
 using System;
+using System.Reflection;
 using Castle.Windsor;
 using Common.Models.Repositories;
+using NHibernate.Mapping.Attributes;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
 
@@ -16,7 +18,14 @@ namespace Common.Models.Tests.Repositories
 			container.AddComponent("Repository", typeof(IRepository<>), typeof(Repository<>));
 			container.AddComponent<IOfferRepository, OfferRepository>();
 			container.AddComponent("RepositoryInterceptor", typeof(RepositoryInterceptor));
-			container.AddComponent("SessionFactoryHolder", typeof(ISessionFactoryHolder), typeof(SessionFactoryHolder));
+			var holder = new SessionFactoryHolder();
+			holder
+				.Configuration
+				.Configure()
+				.AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("Common.Models")));
+			holder.BuildSessionFactory();
+			container.Kernel.AddComponentInstance<ISessionFactoryHolder>(holder);
+
 			IoC.Initialize(container);
 		}
 

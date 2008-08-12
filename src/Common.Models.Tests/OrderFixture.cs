@@ -17,7 +17,7 @@ namespace Common.Models.Tests
 			var order = new Order(priceList, client, false);
 			order.AddOrderItem(offer1, 1);
 			order.AddOrderItem(offer2, 15);
-			Assert.AreEqual(753.2d, order.CalculateSum());
+			Assert.AreEqual(753.2f, order.CalculateSum());
 		}
 
 		[Test]

@@ -7,5 +7,6 @@ namespace Common.Models.Repositories
 		IList<Offer> FindAllForSmartOrder(Client client);
 		IList<Offer> FindAllForSmartOrderWithCategory(Client client);
 		IList<Offer> FindByIds(Client client, IEnumerable<ulong> ids);
+		Offer GetById(Client client, ulong id);
 	}
 }

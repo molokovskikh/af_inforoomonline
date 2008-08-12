@@ -14,6 +14,7 @@ namespace Common.Models
 			Order = order;
 			Cost = offer.Cost;
 			Quantity = quantity;
+			CoreId = offer.Id;
 			ProductId = offer.ProductId;
 			CodeFirmCr = offer.CodeFirmCr;
 			SynonymCode = offer.SynonymCode;
@@ -69,6 +70,9 @@ namespace Common.Models
 
 		[Property]
 		public uint? RequestRatio { get; set; }
+
+		[Property]
+		public ulong? CoreId { get; set; }
 
 		[ManyToOne(ClassType = typeof (Order), Column = "OrderId")]
 		public Order Order { get; set; }

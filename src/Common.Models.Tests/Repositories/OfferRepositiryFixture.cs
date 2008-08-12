@@ -10,24 +10,6 @@ using NUnit.Framework.SyntaxHelpers;
 
 namespace Common.Models.Tests.Repositories
 {
-	public class SessionFactoryHolder : ISessionFactoryHolder
-	{
-		private readonly ISessionFactory _sessionFactory;
-
-		public SessionFactoryHolder()
-		{
-			var configuration = new Configuration();
-			configuration.Configure();
-			configuration.AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("Common.Models")));
-			_sessionFactory = configuration.BuildSessionFactory();
-		}
-
-		public ISessionFactory SessionFactory
-		{
-			get { return _sessionFactory; }
-		}
-	}
-
 	[TestFixture]
 	public class OfferRepositiryFixture
 	{
@@ -39,8 +21,14 @@ namespace Common.Models.Tests.Repositories
 		{
 			var windsorContainer = new WindsorContainer();
 			windsorContainer.AddComponent("RepositoryInterceptor", typeof(RepositoryInterceptor));
-			windsorContainer.AddComponent("SessionFactoryHolder", typeof(ISessionFactoryHolder), typeof(SessionFactoryHolder));
 			windsorContainer.AddComponent("OfferRepository", typeof(IOfferRepository), typeof(OfferRepository));
+			var holder = new SessionFactoryHolder();
+			holder
+				.Configuration
+				.Configure()
+				.AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("Common.Models")));
+			holder.BuildSessionFactory();
+			windsorContainer.Kernel.AddComponentInstance<ISessionFactoryHolder>(holder);
 			IoC.Initialize(windsorContainer);
 
 			repository = IoC.Resolve<IOfferRepository>();
@@ -103,6 +91,14 @@ namespace Common.Models.Tests.Repositories
 			var list = repository.FindByIds(client, new[] {offers[0].Id});
 			Assert.That(list.Count, Is.EqualTo(1));
 			Assert.That(list[0].Id, Is.EqualTo(offers[0].Id));
+		}
+
+		[Test]
+		public void GetById()
+		{
+			var offers = repository.FindAllForSmartOrder(client);
+			var offer = repository.GetById(client, offers[0].Id);
+			Assert.That(offer.Id, Is.EqualTo(offers[0].Id));
 		}
 	}
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Castle.Windsor;
 using NHibernate;
@@ -75,6 +76,15 @@ namespace Common.Models.Tests
 
 			UnitOfWork.Current.Dispose();
 			repository.VerifyAll();
+		}
+
+		[Test]
+		[ExpectedException(typeof(Exception), ExpectedMessage = "SessionFactoryHolder не инициализировал SessionFactory, забыл вызвать BuildSessionFactory?")]
+		public void If_session_factory_holder_not_found_must_be_trow_readable_exception()
+		{
+			IoC.Initialize(new WindsorContainer());
+			IoC.Container.AddComponent<ISessionFactoryHolder, SessionFactoryHolder>();
+			var unitOfWork = new UnitOfWork();
 		}
 	}
 }
