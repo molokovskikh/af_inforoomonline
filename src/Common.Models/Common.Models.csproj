@@ -4,11 +4,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{D34F8F35-9304-4285-ABC4-0DB9DBE253BF}</ProjectGuid>
+    <ProjectGuid>{80C9F352-5EED-41B2-989A-6628BCAF4D36}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>InforoomOnline.Tests</RootNamespace>
-    <AssemblyName>InforoomOnline.Tests</AssemblyName>
+    <RootNamespace>Common.Models</RootNamespace>
+    <AssemblyName>Common.Models</AssemblyName>
     <SccProjectName>
     </SccProjectName>
     <SccLocalPath>
@@ -37,7 +37,6 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -49,7 +48,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>none</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
@@ -61,17 +60,17 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\Castle.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Castle.MicroKernel, Version=1.0.0.2, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+    <Reference Include="Castle.DynamicProxy, Version=1.1.5.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\Castle.MicroKernel.dll</HintPath>
+      <HintPath>..\lib\Castle.DynamicProxy.dll</HintPath>
     </Reference>
     <Reference Include="Castle.Windsor, Version=1.0.0.5, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\Castle.Windsor.dll</HintPath>
     </Reference>
-    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
+    <Reference Include="Iesi.Collections, Version=1.0.0.3, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\log4net.dll</HintPath>
+      <HintPath>..\lib\Iesi.Collections.dll</HintPath>
     </Reference>
     <Reference Include="MySql.Data, Version=5.1.3.3, Culture=neutral, PublicKeyToken=56e353737e921561, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -81,64 +80,37 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\NHibernate.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.framework, Version=2.4.1.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+    <Reference Include="NHibernate.Mapping.Attributes, Version=1.2.0.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="Rhino.Mocks, Version=3.5.0.2, Culture=neutral, PublicKeyToken=0b3305902db7183f, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\lib\Rhino.Mocks.dll</HintPath>
+      <HintPath>..\lib\NHibernate.Mapping.Attributes.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.EnterpriseServices" />
-    <Reference Include="System.ServiceModel">
-      <RequiredTargetFramework>3.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DeadLockExceptionFilterFixture.cs" />
-    <Compile Include="ErrorLoggingInterceptor.cs" />
-    <Compile Include="ForTesting\FixtureWithIoC.cs" />
-    <Compile Include="InforoomOnlineServiceFixture.cs" />
-    <Compile Include="IntegrationFixture.cs" />
-    <Compile Include="PermissionCheckInterceptorFixture.cs" />
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-    <Compile Include="RowCalculatorAttributeFixture.cs" />
+    <Compile Include="Client.cs" />
+    <Compile Include="ClientSettings.cs" />
+    <Compile Include="Firm.cs" />
+    <Compile Include="Helpers\LoggingHelper.cs" />
+    <Compile Include="ItemToOrder.cs" />
+    <Compile Include="OrderBuilder.cs" />
+    <Compile Include="Repositories\Base\BaseRepository.cs" />
+    <Compile Include="SmartOrderLogEntity.cs" />
+    <Compile Include="UnitOfWork\ISessionFactoryHolder.cs" />
+    <Compile Include="Repositories\Repository.cs" />
+    <Compile Include="Repositories\Base\RepositoryInterceptor.cs" />
+    <Compile Include="UnitOfWork\IoC.cs" />
+    <Compile Include="Repositories\IOfferRepository.cs" />
+    <Compile Include="Offer.cs" />
+    <Compile Include="Order.cs" />
+    <Compile Include="OrderItem.cs" />
+    <Compile Include="PriceList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SecurityRepositoryFixture.cs" />
-    <Compile Include="ServiceLogEntityFixture.cs" />
-    <Compile Include="Web References\localhost\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.map</DependentUpon>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <None Include="Web References\localhost\InforoomOnlineService.wsdl" />
-    <None Include="Web References\localhost\InforoomOnlineService.xsd" />
-    <None Include="Web References\localhost\InforoomOnlineService0.xsd" />
-    <None Include="Web References\localhost\InforoomOnlineService1.xsd" />
-    <None Include="Web References\localhost\InforoomOnlineService2.xsd" />
-    <None Include="Web References\localhost\Reference.map">
-      <Generator>MSDiscoCodeGenerator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
+    <Compile Include="Repositories\OfferRepository.cs" />
+    <Compile Include="Repositories\Base\IRepository.cs" />
+    <Compile Include="UnitOfWork\SessionFactoryHolder.cs" />
+    <Compile Include="UnitOfWork\UnitOfWork.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
@@ -158,29 +130,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <WebReferences Include="Web References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <WebReferenceUrl Include="http://localhost:54860/InforoomOnlineService.svc%3fwsdl">
-      <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\localhost\</RelPath>
-      <UpdateFromURL>http://localhost:54860/InforoomOnlineService.svc%3fwsdl</UpdateFromURL>
-      <ServiceLocationURL>
-      </ServiceLocationURL>
-      <CachedDynamicPropName>
-      </CachedDynamicPropName>
-      <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>InforoomOnline_Tests_localhost_InforoomOnlineService</CachedSettingsPropName>
-    </WebReferenceUrl>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Common.Models\Common.Models.csproj">
-      <Project>{80C9F352-5EED-41B2-989A-6628BCAF4D36}</Project>
-      <Name>Common.Models</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\InforoomOnline\InforoomOnline.csproj">
-      <Project>{C5D0894B-BB0F-4B87-9568-915381642F58}</Project>
-      <Name>InforoomOnline</Name>
+    <ProjectReference Include="..\Common.Tools\Common.Tools.csproj">
+      <Project>{72AFCFE8-C9E9-45FA-9698-BEE896A517A3}</Project>
+      <Name>Common.Tools</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
