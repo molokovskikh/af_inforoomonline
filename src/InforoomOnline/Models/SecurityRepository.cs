@@ -5,7 +5,7 @@ namespace InforoomOnline.Models
 {
 	public interface ISecurityRepository
 	{
-		bool HavePermission(string permission, string userName);
+		bool HavePermission(string userName, string permission);
 	}
 
 	public class SecurityRepository : BaseRepository, ISecurityRepository

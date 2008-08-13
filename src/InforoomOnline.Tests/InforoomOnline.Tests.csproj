@@ -81,6 +81,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\NHibernate.dll</HintPath>
     </Reference>
+    <Reference Include="NHibernate.Mapping.Attributes, Version=1.2.0.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\NHibernate.Mapping.Attributes.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework, Version=2.4.1.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\lib\nunit.framework.dll</HintPath>
@@ -106,6 +110,7 @@
     <Compile Include="DeadLockExceptionFilterFixture.cs" />
     <Compile Include="ErrorLoggingInterceptor.cs" />
     <Compile Include="ForTesting\FixtureWithIoC.cs" />
+    <Compile Include="ForTesting\RepositoryExtensions.cs" />
     <Compile Include="InforoomOnlineServiceFixture.cs" />
     <Compile Include="IntegrationFixture.cs" />
     <Compile Include="PermissionCheckInterceptorFixture.cs" />

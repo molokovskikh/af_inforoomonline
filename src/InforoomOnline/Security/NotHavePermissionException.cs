@@ -1,16 +1,17 @@
 ﻿using System;
-using System.ServiceModel;
+using System.Runtime.Serialization;
 
 namespace InforoomOnline.Security
 {
-	public class NotHavePermissionException : FaultException<string>
+	public class NotHavePermissionException : ApplicationException
 	{
 		private const string DetailMessage = "У пользователя {0} нет права работы с сервисом";
-		private const string ReasonMessage = "У пользователя {0} нет права работы с сервисом";
+
+		protected NotHavePermissionException(SerializationInfo info, StreamingContext context) : base(info, context)
+		{}
 
 		public NotHavePermissionException(string userName)
-			: base(String.Format(DetailMessage, userName),
-			       String.Format(ReasonMessage, userName))
+			: base(String.Format(DetailMessage, userName))
 		{
 		}
 	}

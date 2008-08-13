@@ -7,12 +7,10 @@ using InforoomOnline.Security;
 
 namespace InforoomOnline
 {
-	//[ServiceContract(Namespace = "http://ios.analit.net/InforoomOnLine/InforoomOnlineService.svc?wsdl")]
 	[ServiceContract]
-//	[FaultContract(typeof(NotHavePermissionException))]
 	public interface IInforoomOnlineService
 	{
-        [OperationContract, FaultContract(typeof(NotHavePermissionException)), OfferRowCalculator]
+        [OperationContract, FaultContract(typeof(ApplicationException)), OfferRowCalculator]
 		DataSet GetOffers(string[] rangeField, 
 						  string[] rangeValue, 
 						  bool newEar, 
@@ -20,13 +18,13 @@ namespace InforoomOnline
 						  string[] sortOrder,
 		                  int limit, int selStart);
 
-		[OperationContract, FaultContract(typeof(NotHavePermissionException)), RowCalculator]
+		[OperationContract, FaultContract(typeof(ApplicationException)), RowCalculator]
 		DataSet GetPriceList(string[] firmName);
 
-		[OperationContract, FaultContract(typeof(NotHavePermissionException)), RowCalculator]
+		[OperationContract, FaultContract(typeof(ApplicationException)), RowCalculator]
 		DataSet GetNamesFromCatalog(string[] name, string[] form, bool offerOnly, int limit, int selStart);
 
-		[OperationContract, FaultContract(typeof(NotHavePermissionException))]
+		[OperationContract, FaultContract(typeof(ApplicationException))]
 		DataSet PostOrder(long[] offerId, Int32[] quantity, string[] message);
 	}
 }

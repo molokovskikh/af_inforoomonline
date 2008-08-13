@@ -1,10 +1,18 @@
 using System;
+using System.Configuration;
 using System.Data;
-using System.Linq;
+using System.Reflection;
 using System.ServiceModel;
-using InforoomOnline.Security;
+using Castle.Windsor;
+using Common.Models;
+using Common.Models.Repositories;
+using MySql.Data.MySqlClient;
+using NHibernate.Expression;
+using NHibernate.Mapping.Attributes;
 using NUnit.Framework;
+using InforoomOnline.Tests.ForTesting;
 using NUnit.Framework.SyntaxHelpers;
+using Order=Common.Models.Order;
 
 namespace InforoomOnline.Tests
 {
@@ -24,6 +32,19 @@ namespace InforoomOnline.Tests
 		{
 			_service = new InforoomOnlineService();
     		ServiceContext.GetUserName = () => "kvasov";
+
+			var container = new WindsorContainer();
+			container.AddComponent("RepositoryInterceptor", typeof(RepositoryInterceptor));
+			container.AddComponent("OfferRepository", typeof(IOfferRepository), typeof(OfferRepository));
+			container.AddComponent("Repository", typeof(IRepository<>), typeof(Repository<>));
+			var holder = new SessionFactoryHolder();
+			holder
+				.Configuration
+				.Configure()
+				.AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("Common.Models")));
+			holder.BuildSessionFactory();
+			container.Kernel.AddComponentInstance<ISessionFactoryHolder>(holder);
+			IoC.Initialize(container);
 		}
 
     	[Test]
@@ -55,12 +76,46 @@ namespace InforoomOnline.Tests
         [Test]
         public void PostOrder()
         {
+        	var offerRepository = IoC.Resolve<IOfferRepository>();
+			var orderRepository = IoC.Resolve<IRepository<Order>>();
+
+        	var begin = DateTime.Now;
 			var data = _service.GetOffers(Array("name"), Array("*папа*"), false, Empty, Empty, 100, 0);
 			Assert.That(data.Tables[0].Rows.Count, Is.GreaterThan(0), "не нашли предложений");
         	var row = data.Tables[0].Rows[0];
-        	LogDataSet(_service.PostOrder(Array(Convert.ToInt64(row["OfferId"])),
-        	                              Array(1),
-        	                              Array("это тестовый заказ")));
+        	var coreId = Convert.ToInt64(row["OfferId"]);
+
+			using (var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["Main"].ConnectionString))
+			{
+				connection.Open();
+				var command = new MySqlCommand(@"
+update farm.core0
+set OrderCost = 10.5,
+	MinOrderCount = 50,
+	RequestRatio = 10
+where id = ?coreid;
+
+delete from orders.ordershead
+where clientcode = 2575 and writetime > curdate();", connection);
+				command.Parameters.AddWithValue("?CoreId", coreId);
+				command.ExecuteNonQuery();
+			}
+
+        	var result = _service.PostOrder(Array(coreId),
+        	                                Array(1),
+        	                                Array("это тестовый заказ"));
+
+			Assert.That(result.Tables[0].Rows[0]["OfferId"], Is.EqualTo(coreId));
+			Assert.That(result.Tables[0].Rows[0]["Posted"], Is.EqualTo(true));
+
+        	var offer = offerRepository.GetById(new Client {FirmCode = 2575}, (ulong)coreId);
+        	var order = orderRepository.FindOne(Expression.Eq("ClientCode", 2575u)
+        	                                    && Expression.Gt("WriteTime", begin));
+			Assert.That(offer.MinOrderCount, Is.EqualTo(50));
+			Assert.That(order.OrderItems[0].CoreId, Is.EqualTo(offer.Id));
+			Assert.That(order.OrderItems[0].OrderCost, Is.EqualTo(offer.OrderCost));
+			Assert.That(order.OrderItems[0].MinOrderCount, Is.EqualTo(offer.MinOrderCount));
+			Assert.That(order.OrderItems[0].RequestRatio, Is.EqualTo(offer.RequestRatio));
         }
 
 		[Test]
@@ -71,7 +126,7 @@ namespace InforoomOnline.Tests
 				var finded = false;
 				foreach (var attribute in method.GetCustomAttributes(typeof(FaultContractAttribute), true))
 				{
-					finded = ((FaultContractAttribute) attribute).DetailType == typeof (NotHavePermissionException);
+					finded = ((FaultContractAttribute) attribute).DetailType == typeof (ApplicationException);
 					if (finded)
 						break;
 				}

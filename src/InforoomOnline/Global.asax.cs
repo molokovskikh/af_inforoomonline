@@ -2,10 +2,12 @@
 using System.Reflection;
 using System.Web;
 using Castle.Facilities.WcfIntegration;
+using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Castle.Windsor.Configuration.Interpreters;
 using Common.Models;
 using Common.Models.Repositories;
+using InforoomOnline.Logging;
 using log4net;
 using log4net.Config;
 using NHibernate.Mapping.Attributes;
@@ -30,11 +32,19 @@ namespace InforoomOnline
                     .AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("InforoomOnline")));
                 sessionFactoryHolder.BuildSessionFactory();
 
-                IoC.Initialize(new WindsorContainer(new XmlInterpreter()));
-                IoC.Container.Kernel.AddComponentInstance("ISessionFactoryHolder", typeof(ISessionFactoryHolder), sessionFactoryHolder);
-                IoC.Container.AddComponent("Repository", typeof(IRepository<>), typeof(Repository<>));
-                IoC.Container.AddComponent("RepositoryInterceptor", typeof(RepositoryInterceptor));
-                WindsorServiceHostFactory.RegisterContainer(IoC.Container);
+            	var container = new WindsorContainer()
+            		.AddFacility<WcfFacility>()
+            		.Register(
+						Component.For<IInforoomOnlineService>()
+						.Named("InforoomOnlineService")
+						.ImplementedBy(typeof(InforoomOnlineService)),
+						Component.For<ErrorLoggingInterceptor>(),
+						Component.For<ResultLogingInterceptor>(),
+						Component.For<ISessionFactoryHolder>().Instance(sessionFactoryHolder),
+						Component.For<RepositoryInterceptor>(),
+						Component.For(typeof(IRepository<>)).ImplementedBy(typeof(Repository<>))
+					);
+                IoC.Initialize(container);
             }
             catch (Exception ex)
             {

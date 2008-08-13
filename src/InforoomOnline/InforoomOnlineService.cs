@@ -258,6 +258,9 @@ SELECT  cd.FirmCode as ClientCode,
 		0 Quantity,
         c.Junk,
 		c.Await,
+		c.OrderCost,
+		c.MinOrderCount,
+		c.RequestRatio,
 		if(if(round(cc.Cost*ap.UpCost,2)<MinBoundCost, MinBoundCost, round(cc.Cost*ap.UpCost,2))>MaxBoundCost,MaxBoundCost, if(round(cc.Cost*ap.UpCost,2)<MinBoundCost, MinBoundCost, round(cc.Cost*ap.UpCost,2))) as Cost
 FROM (farm.core0 c, usersettings.clientsdata cd)
   JOIN ActivePrices ap on c.PriceCode = ap.PriceCode
@@ -323,8 +326,8 @@ select LAST_INSERT_ID();")
 						    foreach (var drOL in drOrderList)
 						    {
 						        helper.Command(@"
-insert into orders.orderslist (OrderID, ProductId, CodeFirmCr, SynonymCode, SynonymFirmCrCode, Code, CodeCr, Quantity, Junk, Await, Cost) 
-values (?OrderID, ?ProductId, ?CodeFirmCr, ?SynonymCode, ?SynonymFirmCrCode, ?Code, ?CodeCr, ?Quantity, ?Junk, ?Await, ?Cost);")
+insert into orders.orderslist (OrderID, ProductId, CodeFirmCr, SynonymCode, SynonymFirmCrCode, Code, CodeCr, Quantity, Junk, Await, Cost, CoreId, MinOrderCount, RequestRatio, OrderCost) 
+values (?OrderID, ?ProductId, ?CodeFirmCr, ?SynonymCode, ?SynonymFirmCrCode, ?Code, ?CodeCr, ?Quantity, ?Junk, ?Await, ?Cost, ?CoreId, ?MinOrderCount, ?RequestRatio, ?OrderCost);")
 						            .AddParameter("?OrderID", drOH["OrderID"])
 						            .AddParameter("?ProductId", drOL["ProductId"])
 						            .AddParameter("?CodeFirmCr", drOL["CodeFirmCr"])
@@ -336,6 +339,10 @@ values (?OrderID, ?ProductId, ?CodeFirmCr, ?SynonymCode, ?SynonymFirmCrCode, ?Co
 						            .AddParameter("?Await", drOL["Await"])
 						            .AddParameter("?Cost", drOL["Cost"])
 						            .AddParameter("?Quantity", drOL["Quantity"])
+									.AddParameter("?CoreId", drOL["Id"])
+									.AddParameter("?MinOrderCount", drOL["MinOrderCount"])
+									.AddParameter("?OrderCost", drOL["OrderCost"])
+									.AddParameter("?RequestRatio", drOL["RequestRatio"])
 						            .Execute();
 						    }
 						}

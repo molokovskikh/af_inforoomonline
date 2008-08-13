@@ -1,4 +1,5 @@
-﻿using Castle.Core.Interceptor;
+﻿using System.ServiceModel;
+using Castle.Core.Interceptor;
 using InforoomOnline.Models;
 
 namespace InforoomOnline.Security
@@ -15,7 +16,7 @@ namespace InforoomOnline.Security
 		public void Intercept(IInvocation invocation)
 		{
 			if (!_repository.HavePermission(ServiceContext.GetUserName(), "AOL"))
-				throw new NotHavePermissionException(ServiceContext.GetUserName());
+				throw new FaultException<NotHavePermissionException>(new NotHavePermissionException(ServiceContext.GetUserName()), new FaultReason("Нет права доступа"));
 
 			invocation.Proceed();
 		}

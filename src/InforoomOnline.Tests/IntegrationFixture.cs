@@ -1,4 +1,7 @@
-﻿using NUnit.Framework;
+﻿using System;
+using System.ServiceModel.Description;
+using InforoomOnline.Tests.Properties;
+using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
 
 namespace InforoomOnline.Tests
@@ -14,5 +17,16 @@ namespace InforoomOnline.Tests
             Assert.That(offers.Tables.Count,
                         Is.EqualTo(1));
         }
+
+		[Test]
+		public void CheckWsdl()
+		{
+			var metaTransfer =
+				new MetadataExchangeClient(new Uri(Settings.Default.InforoomOnline_Tests_localhost_InforoomOnlineService + "?wsdl"),
+				                           MetadataExchangeClientMode.HttpGet);
+			metaTransfer.ResolveMetadataReferences = true;
+			var otherDocs = metaTransfer.GetMetadata();
+			Assert.That(otherDocs.MetadataSections.Count, Is.GreaterThan(0));
+		}
     }
 }
