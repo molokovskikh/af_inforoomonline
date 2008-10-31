@@ -16,48 +16,52 @@ namespace InforoomOnline.Tests
 	[TestFixture]
 	public class ErrorLoggingInterceptorFixture
 	{
-		[Interceptor(typeof(ErrorLoggingInterceptor))]
+	    private IAppender _appender;
+	    private TestClass _testClass;
+
+	    [Interceptor(typeof(ErrorLoggingInterceptor))]
 		public class TestClass
 		{
-			public virtual void Run()
+            public Action RunAction { get; set; }
+
+	        public virtual void Run()
 			{
-				throw new FaultException<string>("test", "test");
+	            RunAction();
 			}
 		}
 
 		[SetUp]
 		public void SetUp()
 		{
-			ServiceContext.GetUserName = () => "kvasov";
-			var container = new WindsorContainer();
-			IoC.Initialize(container);
-			IoC.Container.AddComponent<ErrorLoggingInterceptor>();
-			IoC.Container.AddComponent<TestClass>();
+            var container = new WindsorContainer();
+            IoC.Initialize(container);
+            IoC.Container.AddComponent<ErrorLoggingInterceptor>();
+            IoC.Container.AddComponent<TestClass>();
+            _appender = JoinMockedAppender<ErrorLoggingInterceptor>();
+            _testClass = IoC.Resolve<TestClass>();
 		}
 
 		[TearDown]
 		public void TearDown()
 		{
-			IoC.Container.Dispose();
-			IoC.Initialize(null);
+            IoC.Container.Dispose();
+            IoC.Initialize(null);
 		}
 
-		[Test]
+	    [Test]
 		public void Do_not_log_fault_exception()
 		{
-			var testClass = IoC.Resolve<TestClass>();
-			var appender = JoinMockedAppender<ErrorLoggingInterceptor>();
-			try
-			{
-				testClass.Run();
-			}
-			catch (Exception)
-			{}
-			appender.AssertWasNotCalled(app => app.DoAppend(null),
-			                            method => method.IgnoreArguments());
+	        _testClass.RunAction = () => { throw new FaultException<string>("test", "test"); };
+            try
+            {
+                _testClass.Run();
+            }
+            catch {}
+            _appender.AssertWasNotCalled(app => app.DoAppend(null),
+                                         method => method.IgnoreArguments());
 		}
 
-		public static IAppender JoinMockedAppender<T>()
+	    public static IAppender JoinMockedAppender<T>()
 		{
 			var appender = MockRepository.GenerateStub<IAppender>();
 			appender.Name = "Test appender";

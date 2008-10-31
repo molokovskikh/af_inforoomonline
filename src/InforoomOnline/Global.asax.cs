@@ -4,7 +4,6 @@ using System.Web;
 using Castle.Facilities.WcfIntegration;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
-using Castle.Windsor.Configuration.Interpreters;
 using Common.Models;
 using Common.Models.Repositories;
 using InforoomOnline.Logging;

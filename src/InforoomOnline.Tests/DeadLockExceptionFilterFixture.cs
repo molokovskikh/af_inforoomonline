@@ -36,7 +36,7 @@ namespace InforoomOnline.Tests
 													"root",
 													Level.Error,
 													"test",
-													new Exception("test", CreateException("test", 1205)));
+													new Exception("test", CreateMysqlException("test", 1205)));
 			Assert.That(filter.Decide(loggingEvent1205), Is.EqualTo(FilterDecision.Deny));
 		}
 
@@ -49,7 +49,7 @@ namespace InforoomOnline.Tests
 			                                        "root",
 			                                        Level.Error,
 			                                        "test",
-			                                        CreateException("test", 1205));
+			                                        CreateMysqlException("test", 1205));
 			Assert.That(filter.Decide(loggingEvent1205), Is.EqualTo(FilterDecision.Deny));
 
 			var loggingEvent1213 = new LoggingEvent(typeof (DeadLockExceptionFilterFixture),
@@ -57,7 +57,7 @@ namespace InforoomOnline.Tests
 			                                        "root",
 			                                        Level.Error,
 			                                        "test",
-			                                        CreateException("test", 1213));
+			                                        CreateMysqlException("test", 1213));
 			Assert.That(filter.Decide(loggingEvent1213), Is.EqualTo(FilterDecision.Deny));
 
 			var loggingEvent1422 = new LoggingEvent(typeof (DeadLockExceptionFilterFixture),
@@ -65,7 +65,7 @@ namespace InforoomOnline.Tests
 			                                        "root",
 			                                        Level.Error,
 			                                        "test",
-			                                        CreateException("test", 1422));
+			                                        CreateMysqlException("test", 1422));
 			Assert.That(filter.Decide(loggingEvent1422), Is.EqualTo(FilterDecision.Deny));
 		}
 
@@ -103,7 +103,7 @@ namespace InforoomOnline.Tests
 								"root",
 								Level.Info,
 								"test",
-								CreateException("test", 1422));
+								CreateMysqlException("test", 1422));
 			Assert.That(filter.Decide(loggingEvent), Is.EqualTo(FilterDecision.Neutral));
 		}
 
@@ -139,9 +139,9 @@ namespace InforoomOnline.Tests
 			Assert.That(LogManager.GetRepository().Configured, Is.True, "Не сложилось с конфигурацией");
 			var log = LogManager.GetLogger(typeof (DeadLockExceptionFilterFixture));
 
-			log.Error("test", CreateException("test", 1205));
-			log.Error("test", CreateException("test", 1213));
-			log.Error("test", CreateException("test", 1422));
+			log.Error("test", CreateMysqlException("test", 1205));
+			log.Error("test", CreateMysqlException("test", 1213));
+			log.Error("test", CreateMysqlException("test", 1422));
 
 			Assert.That(FakeAppender.InvocationCount, Is.EqualTo(0), "Вызван аппендер чего не должно быть");
 
@@ -152,7 +152,7 @@ namespace InforoomOnline.Tests
 			Assert.That(FakeAppender.InvocationCount, Is.EqualTo(2), "Не вызвали аппендер");
 		}
 
-		public MySqlException CreateException(string message, int errorCode)
+		public static MySqlException CreateMysqlException(string message, int errorCode)
 		{
 			return (MySqlException) typeof (MySqlException)
 			                        	.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic,
