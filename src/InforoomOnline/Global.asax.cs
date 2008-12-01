@@ -6,7 +6,8 @@ using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Common.Models;
 using Common.Models.Repositories;
-using InforoomOnline.Logging;
+using Common.Service.Interceptors;
+using Common.Service.Models;
 using log4net;
 using log4net.Config;
 using NHibernate.Mapping.Attributes;
@@ -28,7 +29,7 @@ namespace InforoomOnline
                 sessionFactoryHolder
                     .Configuration
                     .Configure()
-                    .AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("InforoomOnline")));
+                    .AddInputStream(HbmSerializer.Default.Serialize(typeof(ServiceLogEntity).Assembly));
                 sessionFactoryHolder.BuildSessionFactory();
 
             	var container = new WindsorContainer()
@@ -39,9 +40,11 @@ namespace InforoomOnline
 						.ImplementedBy(typeof(InforoomOnlineService)),
 						Component.For<ErrorLoggingInterceptor>(),
 						Component.For<ResultLogingInterceptor>(),
+						Component.For<PermissionCheckInterceptor>(),
 						Component.For<ISessionFactoryHolder>().Instance(sessionFactoryHolder),
 						Component.For<RepositoryInterceptor>(),
-						Component.For(typeof(IRepository<>)).ImplementedBy(typeof(Repository<>))
+						Component.For(typeof(IRepository<>)).ImplementedBy(typeof(Repository<>)),
+						Component.For<ISecurityRepository>().ImplementedBy<SecurityRepository>()
 					);
                 IoC.Initialize(container);
             }
@@ -51,7 +54,7 @@ namespace InforoomOnline
             }
         }
 
-        protected void Application_EndRequest(object sender, EventArgs e)
+    	protected void Application_EndRequest(object sender, EventArgs e)
         {}
 
         protected void Application_BeginRequest(object sender, EventArgs e)
@@ -59,5 +62,7 @@ namespace InforoomOnline
 
         protected void Application_End(object sender, EventArgs e)
         {}
+
+
     }
 }

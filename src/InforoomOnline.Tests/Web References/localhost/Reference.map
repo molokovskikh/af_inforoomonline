@@ -6,5 +6,6 @@
     <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="http://localhost:54860/InforoomOnlineService.svc?xsd=xsd2" filename="InforoomOnlineService1.xsd" />
     <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="http://localhost:54860/InforoomOnlineService.svc?xsd=xsd1" filename="InforoomOnlineService2.xsd" />
     <DiscoveryClientResult referenceType="System.Web.Services.Discovery.ContractReference" url="http://localhost:54860/InforoomOnlineService.svc?wsdl" filename="InforoomOnlineService.wsdl" />
+    <DiscoveryClientResult referenceType="System.Web.Services.Discovery.SchemaReference" url="http://localhost:54860/InforoomOnlineService.svc?xsd=xsd4" filename="InforoomOnlineService3.xsd" />
   </Results>
 </DiscoveryClientResultsFile>

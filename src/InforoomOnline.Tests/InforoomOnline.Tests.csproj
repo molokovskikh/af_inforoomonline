@@ -115,22 +115,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DeadLockExceptionFilterFixture.cs" />
-    <Compile Include="ErrorLoggingInterceptor.cs" />
-    <Compile Include="ForTesting\FixtureWithIoC.cs" />
-    <Compile Include="ForTesting\RepositoryExtensions.cs" />
     <Compile Include="InforoomOnlineServiceFixture.cs" />
     <Compile Include="IntegrationFixture.cs" />
-    <Compile Include="PermissionCheckInterceptorFixture.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="RowCalculatorAttributeFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SecurityRepositoryFixture.cs" />
-    <Compile Include="ServiceLogEntityFixture.cs" />
     <Compile Include="Web References\localhost\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -148,6 +140,7 @@
     <None Include="Web References\localhost\InforoomOnlineService0.xsd" />
     <None Include="Web References\localhost\InforoomOnlineService1.xsd" />
     <None Include="Web References\localhost\InforoomOnlineService2.xsd" />
+    <None Include="Web References\localhost\InforoomOnlineService3.xsd" />
     <None Include="Web References\localhost\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
@@ -190,6 +183,18 @@
     <ProjectReference Include="..\Common.Models\Common.Models.csproj">
       <Project>{80C9F352-5EED-41B2-989A-6628BCAF4D36}</Project>
       <Name>Common.Models</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Common.Service\Common.Service.Tests\Common.Service.Tests.csproj">
+      <Project>{CD94B599-2068-48C8-ABFB-D60E86C33613}</Project>
+      <Name>Common.Service.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Common.Service\Common.Service\Common.Service.csproj">
+      <Project>{42D52206-A0F4-4624-B3DA-D554DC6A5C09}</Project>
+      <Name>Common.Service</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Common.Tools\src\Common.Tools\Common.Tools.csproj">
+      <Project>{72AFCFE8-C9E9-45FA-9698-BEE896A517A3}</Project>
+      <Name>Common.Tools</Name>
     </ProjectReference>
     <ProjectReference Include="..\InforoomOnline\InforoomOnline.csproj">
       <Project>{C5D0894B-BB0F-4B87-9568-915381642F58}</Project>

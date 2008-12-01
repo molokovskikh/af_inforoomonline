@@ -1,16 +1,14 @@
 using System;
 using System.Data;
 using System.ServiceModel;
-using System.ServiceModel.Activation;
-using InforoomOnline.Logging;
-using InforoomOnline.Security;
+using Common.Service;
 
 namespace InforoomOnline
 {
 	[ServiceContract]
 	public interface IInforoomOnlineService
 	{
-        [OperationContract, FaultContract(typeof(ApplicationException)), OfferRowCalculator]
+		[OperationContract, FaultContract(typeof(FaultMessage)), OfferRowCalculator]
 		DataSet GetOffers(string[] rangeField, 
 						  string[] rangeValue, 
 						  bool newEar, 
@@ -18,13 +16,13 @@ namespace InforoomOnline
 						  string[] sortOrder,
 		                  int limit, int selStart);
 
-		[OperationContract, FaultContract(typeof(ApplicationException)), RowCalculator]
+		[OperationContract, FaultContract(typeof(FaultMessage)), RowCalculator]
 		DataSet GetPriceList(string[] firmName);
 
-		[OperationContract, FaultContract(typeof(ApplicationException)), RowCalculator]
+		[OperationContract, FaultContract(typeof(FaultMessage)), RowCalculator]
 		DataSet GetNamesFromCatalog(string[] name, string[] form, bool offerOnly, int limit, int selStart);
 
-		[OperationContract, FaultContract(typeof(ApplicationException))]
+		[OperationContract, FaultContract(typeof(FaultMessage))]
 		DataSet PostOrder(long[] offerId, Int32[] quantity, string[] message);
 	}
 }

@@ -6,11 +6,12 @@ using System.ServiceModel;
 using Castle.Windsor;
 using Common.Models;
 using Common.Models.Repositories;
+using Common.Service;
+using Common.Service.Tests.ForTesting;
 using MySql.Data.MySqlClient;
 using NHibernate.Expression;
 using NHibernate.Mapping.Attributes;
 using NUnit.Framework;
-using InforoomOnline.Tests.ForTesting;
 using NUnit.Framework.SyntaxHelpers;
 using Order=Common.Models.Order;
 
@@ -126,7 +127,7 @@ where clientcode = 2575 and writetime > curdate();", connection);
 				var finded = false;
 				foreach (var attribute in method.GetCustomAttributes(typeof(FaultContractAttribute), true))
 				{
-					finded = ((FaultContractAttribute) attribute).DetailType == typeof (ApplicationException);
+					finded = ((FaultContractAttribute) attribute).DetailType == typeof (FaultMessage);
 					if (finded)
 						break;
 				}

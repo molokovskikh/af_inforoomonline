@@ -4,14 +4,16 @@ using System.Data;
 using System.ServiceModel.Activation;
 using Castle.Core;
 using Common.MySql;
-using InforoomOnline.Logging;
+using Common.Service;
+using Common.Service.Interceptors;
 using MySqlHelper=Common.MySql.MySqlHelper;
 
 namespace InforoomOnline
 {
 	[
 		Interceptor(typeof(ErrorLoggingInterceptor)),
-		Interceptor(typeof(ResultLogingInterceptor)),
+		ResultLoging("InforoomOnlineService"),
+		ReqiredPermission("IOL"),
 		AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Required)
 	]
 	public class InforoomOnlineService : IInforoomOnlineService
