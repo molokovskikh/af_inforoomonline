@@ -38,7 +38,7 @@ namespace Common.Models
 		[Property]
 		public DateTime PriceDate { get; set; }
 
-		[Bag(0, Lazy = false, Inverse = true, Cascade = CascadeStyle.All)]
+		[Bag(0, Lazy = false, Inverse = true, Cascade = "all")]
 		[Key(1, Column = "OrderId")]
 		[OneToMany(2, ClassType = typeof (OrderItem))]
 		public IList<OrderItem> OrderItems { get; protected set; }

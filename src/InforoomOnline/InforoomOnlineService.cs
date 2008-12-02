@@ -14,6 +14,7 @@ namespace InforoomOnline
 		Interceptor(typeof(ErrorLoggingInterceptor)),
 		ResultLoging("InforoomOnlineService"),
 		ReqiredPermission("IOL"),
+		UpdateLastAccessTime("IOLTime"),
 		AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Required)
 	]
 	public class InforoomOnlineService : IInforoomOnlineService

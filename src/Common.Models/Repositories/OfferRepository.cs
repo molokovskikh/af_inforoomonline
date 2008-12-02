@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Data;
 using Common.Tools;
@@ -99,7 +100,7 @@ FROM usersettings.Core c
 WHERE Offer.Id in (:ids);
 ")
 										.AddEntity("Offer", typeof (Offer))
-										.SetParameterList("ids", ids)
+										.SetParameterList("ids", ids.ToList())
 										.List<Offer>();
 						});
 		}

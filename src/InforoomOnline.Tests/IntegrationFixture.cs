@@ -7,7 +7,7 @@ using Common.Service.Models;
 using Common.Service.Tests;
 using Common.Tools;
 using InforoomOnline.Tests.Properties;
-using NHibernate.Expression;
+using NHibernate.Criterion;
 using NHibernate.Mapping.Attributes;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
@@ -99,6 +99,16 @@ namespace InforoomOnline.Tests
 
 				Assert.That(log.MethodName, Is.EqualTo("GetPriceList"));
 			}
+		}
+
+		[Test]
+		public void On_every_method_call_last_access_time_should_be_update()
+		{
+			var begin = DateTime.Now;
+			service.GetPriceList(new[] {"*"});
+
+			var lastUpdate = LogRepositoryFixture.GetLastAccessTime("kvasov", "IOLTime");
+			Assert.That(begin - lastUpdate, Is.LessThan(TimeSpan.FromSeconds(1)));
 		}
     }
 }

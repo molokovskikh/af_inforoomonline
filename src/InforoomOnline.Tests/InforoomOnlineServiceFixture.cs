@@ -9,7 +9,7 @@ using Common.Models.Repositories;
 using Common.Service;
 using Common.Service.Tests.ForTesting;
 using MySql.Data.MySqlClient;
-using NHibernate.Expression;
+using NHibernate.Criterion;
 using NHibernate.Mapping.Attributes;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;

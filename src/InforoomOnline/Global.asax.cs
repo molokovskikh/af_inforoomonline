@@ -41,10 +41,12 @@ namespace InforoomOnline
 						Component.For<ErrorLoggingInterceptor>(),
 						Component.For<ResultLogingInterceptor>(),
 						Component.For<PermissionCheckInterceptor>(),
+						Component.For<UpdateLastAccessTimeInterceptor>(),
 						Component.For<ISessionFactoryHolder>().Instance(sessionFactoryHolder),
 						Component.For<RepositoryInterceptor>(),
 						Component.For(typeof(IRepository<>)).ImplementedBy(typeof(Repository<>)),
-						Component.For<ISecurityRepository>().ImplementedBy<SecurityRepository>()
+						Component.For<ISecurityRepository>().ImplementedBy<SecurityRepository>(),
+						Component.For<ILogRepository>().ImplementedBy<LogRepository>()
 					);
                 IoC.Initialize(container);
             }
