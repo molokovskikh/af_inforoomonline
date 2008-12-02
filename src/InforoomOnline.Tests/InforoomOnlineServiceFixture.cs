@@ -136,7 +136,7 @@ where clientcode = 2575 and writetime > curdate();", connection);
 			}
 		}
 
-    	private static void LogDataSet(DataSet dataSet)
+    	public static void LogDataSet(DataSet dataSet)
         {
             foreach (DataTable dataTable in dataSet.Tables)
             {
