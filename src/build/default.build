@@ -2,24 +2,11 @@
 <project name="MyProject" default="compile" basedir="..">
 
 	<property name="ProjectName" value="InforoomOnline" />
-	<property name="VssDbPath" value="\\offdc\VSS\Inforoom\srcsafe.ini" />
-	<property name="VssPath" value="$/inforoom/NET2.0/InforoomOnline/release/" />
 	<property name="ReleasePath" value="..\..\release\" />
 		
 
 	<target name="compile">
-
 		<loadtasks assembly=".\build\NAnt.Contrib.Tasks.dll" />
-
-		<vsscheckout 
-                  username="${User}"
-                  password="${Password}" 
-                  localpath="${ReleasePath}"
-                  recursive="true"
-                  writable="true"
-                  dbpath="${VssDbPath}"
-                  path="${VssPath}" 
-		/>
 
 		<delete>
             <fileset basedir=".\${ProjectName}\bin\Release\">
@@ -51,23 +38,5 @@
 			file=".\${ProjectName}\Web.Release.config"
 			tofile="${ReleasePath}Web.config"
 		/>
-
-		<vssadd dbpath="${VssDbPath}" username="${User}" password="${Password}" path="${VssPath}">
-			<fileset basedir="${ReleasePath}">
-				<include name="**.*"/>
-				<exclude name="**.scc" />
-			</fileset>
-		</vssadd>
-
-		<vsscheckin 
-					username="${User}"
-					password="${Password}" 
-					localpath="${ReleasePath}"
-					recursive="true"
-					writable="true"
-					dbpath="${VssDbPath}"
-					path="${VssPath}" 
-					comment="Build script checkin"
-		/> 
 	</target>	
 </project>
