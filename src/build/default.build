@@ -2,7 +2,7 @@
 <project name="MyProject" default="compile" basedir="..">
 
 	<property name="ProjectName" value="InforoomOnline" />
-	<property name="ReleasePath" value="..\..\release\" />
+	<property name="ReleasePath" value="..\..\build\" />
 		
 
 	<target name="compile">
