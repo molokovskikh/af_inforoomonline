@@ -32,7 +32,6 @@ namespace InforoomOnline.Tests
 				.Configuration
 				.Configure()
 				.AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("Common.Service")));
-			sessionFactoryHolder.BuildSessionFactory();
 		}
 
     	[Test]
@@ -109,6 +108,12 @@ namespace InforoomOnline.Tests
 
 			var lastUpdate = LogRepositoryFixture.GetLastAccessTime("kvasov", "IOLTime");
 			Assert.That(begin - lastUpdate, Is.LessThan(TimeSpan.FromSeconds(1)));
+		}
+
+		[Test]
+		public void Every_request_that_work_more_than_30_seconds_should_be_logged()
+		{
+			//service.GetOffers()
 		}
     }
 }

@@ -30,7 +30,6 @@ namespace InforoomOnline
                     .Configuration
                     .Configure()
                     .AddInputStream(HbmSerializer.Default.Serialize(typeof(ServiceLogEntity).Assembly));
-                sessionFactoryHolder.BuildSessionFactory();
 
             	var container = new WindsorContainer()
             		.AddFacility<WcfFacility>()
@@ -42,6 +41,9 @@ namespace InforoomOnline
 						Component.For<ResultLogingInterceptor>(),
 						Component.For<PermissionCheckInterceptor>(),
 						Component.For<UpdateLastAccessTimeInterceptor>(),
+						Component.For<MonitorExecutingTimeInterceptor>(),
+						Component.For<LockMonitor>()
+							.Parameters(Parameter.ForKey("TimeOut").Eq("10000")),
 						Component.For<ISessionFactoryHolder>().Instance(sessionFactoryHolder),
 						Component.For<RepositoryInterceptor>(),
 						Component.For(typeof(IRepository<>)).ImplementedBy(typeof(Repository<>)),
@@ -49,6 +51,7 @@ namespace InforoomOnline
 						Component.For<ILogRepository>().ImplementedBy<LogRepository>()
 					);
                 IoC.Initialize(container);
+				IoC.Resolve<LockMonitor>().Start();
             }
             catch (Exception ex)
             {

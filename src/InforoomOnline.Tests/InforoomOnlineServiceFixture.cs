@@ -43,7 +43,6 @@ namespace InforoomOnline.Tests
 				.Configuration
 				.Configure()
 				.AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("Common.Models")));
-			holder.BuildSessionFactory();
 			container.Kernel.AddComponentInstance<ISessionFactoryHolder>(holder);
 			IoC.Initialize(container);
 		}
