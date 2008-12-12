@@ -27,7 +27,6 @@ namespace Common.Models.Tests.Repositories
 				.Configuration
 				.Configure()
 				.AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("Common.Models")));
-			holder.BuildSessionFactory();
 			windsorContainer.Kernel.AddComponentInstance<ISessionFactoryHolder>(holder);
 			IoC.Initialize(windsorContainer);
 
