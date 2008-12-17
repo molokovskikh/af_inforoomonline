@@ -176,7 +176,7 @@
     </WebReferenceUrl>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common.Models\Common.Models.csproj">
+    <ProjectReference Include="..\Common.Models\Common.Models\Common.Models.csproj">
       <Project>{80C9F352-5EED-41B2-989A-6628BCAF4D36}</Project>
       <Name>Common.Models</Name>
     </ProjectReference>
