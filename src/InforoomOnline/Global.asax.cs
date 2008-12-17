@@ -66,8 +66,12 @@ namespace InforoomOnline
         {}
 
         protected void Application_End(object sender, EventArgs e)
-        {}
-
-
+        {
+			if (IoC.Container != null)
+			{
+				IoC.Resolve<LockMonitor>().Stop();
+				IoC.Container.Dispose();
+			}
+        }
     }
 }
