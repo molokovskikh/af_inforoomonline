@@ -235,7 +235,7 @@ FROM Catalogs.Catalog c
 						var clientCode = GetClientCode(helper);
 						var dsPost = new DataSet();
 						var submit = helper
-										.Command("select SubmitOrders and AllowSubmitOrders from usersettings.RetClientsSet where clientcode = ?ClientCode")
+										.Command("select SubmitOrders from usersettings.RetClientsSet where clientcode = ?ClientCode")
 										.AddParameter("?ClientCode", clientCode)
 										.ExecuteScalar<bool>();
 
