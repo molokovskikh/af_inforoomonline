@@ -86,7 +86,10 @@ SELECT	offers.Id as OfferId,
 		c.Period,
 		c.Doc,
 		c.Junk,
-		offers.Cost 
+		c.RequestRatio,
+		c.OrderCost as MinOrderSum,
+		c.MinOrderCount,
+		offers.Cost
 FROM core as offers
     JOIN farm.core0 as c on c.id = offers.id
 		JOIN farm.synonym s on c.synonymcode = s.synonymcode

@@ -61,6 +61,12 @@ namespace InforoomOnline.Tests
         {
             var data = _service.GetOffers(null, null, false,
                                              new string[0], new string[0], 100, 0);
+
+			Assert.That(data.Tables[0].Rows.Count, Is.GreaterThan(0));
+			Assert.That(data.Tables[0].Columns.Contains("RequestRatio"));
+			Assert.That(data.Tables[0].Columns.Contains("MinOrderSum"));
+			Assert.That(data.Tables[0].Columns.Contains("MinOrderCount"));
+
             LogDataSet(data);
         }
 
