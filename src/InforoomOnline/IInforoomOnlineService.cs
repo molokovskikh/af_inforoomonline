@@ -8,7 +8,7 @@ namespace InforoomOnline
 	[ServiceContract]
 	public interface IInforoomOnlineService
 	{
-		[OperationContract, FaultContract(typeof(FaultMessage)), OfferRowCalculator]
+		[OperationContract, FaultContract(typeof(DoNotHavePermissionFault)), OfferRowCalculator]
 		DataSet GetOffers(string[] rangeField, 
 						  string[] rangeValue, 
 						  bool newEar, 
@@ -16,13 +16,13 @@ namespace InforoomOnline
 						  string[] sortOrder,
 		                  int limit, int selStart);
 
-		[OperationContract, FaultContract(typeof(FaultMessage)), RowCalculator]
+		[OperationContract, FaultContract(typeof(DoNotHavePermissionFault)), RowCalculator]
 		DataSet GetPriceList(string[] firmName);
 
-		[OperationContract, FaultContract(typeof(FaultMessage)), RowCalculator]
+		[OperationContract, FaultContract(typeof(DoNotHavePermissionFault)), RowCalculator]
 		DataSet GetNamesFromCatalog(string[] name, string[] form, bool offerOnly, int limit, int selStart);
 
-		[OperationContract, FaultContract(typeof(FaultMessage))]
+		[OperationContract, FaultContract(typeof(DoNotHavePermissionFault))]
 		DataSet PostOrder(long[] offerId, Int32[] quantity, string[] message);
 	}
 }

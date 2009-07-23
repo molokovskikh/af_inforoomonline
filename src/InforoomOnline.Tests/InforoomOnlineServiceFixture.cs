@@ -12,7 +12,6 @@ using MySql.Data.MySqlClient;
 using NHibernate.Criterion;
 using NHibernate.Mapping.Attributes;
 using NUnit.Framework;
-using NUnit.Framework.SyntaxHelpers;
 using Order=Common.Models.Order;
 
 namespace InforoomOnline.Tests
@@ -41,7 +40,6 @@ namespace InforoomOnline.Tests
 			var holder = new SessionFactoryHolder();
 			holder
 				.Configuration
-				.Configure()
 				.AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("Common.Models")));
 			container.Kernel.AddComponentInstance<ISessionFactoryHolder>(holder);
 			IoC.Initialize(container);
@@ -126,7 +124,7 @@ where clientcode = 2575 and writetime > curdate();", connection);
 				var finded = false;
 				foreach (var attribute in method.GetCustomAttributes(typeof(FaultContractAttribute), true))
 				{
-					finded = ((FaultContractAttribute) attribute).DetailType == typeof (FaultMessage);
+					finded = ((FaultContractAttribute) attribute).DetailType == typeof (DoNotHavePermissionFault);
 					if (finded)
 						break;
 				}

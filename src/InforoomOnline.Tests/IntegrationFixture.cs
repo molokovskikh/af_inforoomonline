@@ -10,7 +10,6 @@ using InforoomOnline.Tests.Properties;
 using NHibernate.Criterion;
 using NHibernate.Mapping.Attributes;
 using NUnit.Framework;
-using NUnit.Framework.SyntaxHelpers;
 
 namespace InforoomOnline.Tests
 {
@@ -28,10 +27,7 @@ namespace InforoomOnline.Tests
 			SecurityRepositoryFixture.CreatePermission("kvasov", "IOL");
 
 			sessionFactoryHolder = new SessionFactoryHolder();
-			sessionFactoryHolder
-				.Configuration
-				.Configure()
-				.AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("Common.Service")));
+			sessionFactoryHolder.Configuration.AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("Common.Service")));
 		}
 
     	[Test]
@@ -84,7 +80,7 @@ namespace InforoomOnline.Tests
 					.Add(Expression.Ge("LogTime", new DateTime(begin.Year, begin.Month, begin.Day)))
 					.List<ServiceLogEntity>();
 
-				logs.Foreach(session.Delete);
+				logs.Each(session.Delete);
 				session.Flush();
 			}
 

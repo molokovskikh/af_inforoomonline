@@ -28,7 +28,6 @@ namespace InforoomOnline
                 var sessionFactoryHolder = new SessionFactoryHolder();
                 sessionFactoryHolder
                     .Configuration
-                    .Configure()
                     .AddInputStream(HbmSerializer.Default.Serialize(typeof(ServiceLogEntity).Assembly));
 
             	var container = new WindsorContainer()
