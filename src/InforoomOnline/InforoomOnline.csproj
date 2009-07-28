@@ -112,6 +112,7 @@
     <Content Include="Global.asax">
     </Content>
     <Content Include="InforoomOnlineService.svc" />
+    <Content Include="Описание.txt" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
