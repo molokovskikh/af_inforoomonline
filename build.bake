@@ -1,0 +1,10 @@
+﻿import file from WebServiceSupport.bake
+
+Global(
+	project : "InforoomOnline",
+	deployTo : "\\\\acdcserv\\IOS\\InforoomOnline"
+)
+
+Task @default, [@buildWebService]
+
+Task @deploy, [@buildWebService, @deployWebService]
