@@ -86,6 +86,8 @@ SELECT	offers.Id as OfferId,
 		c.RequestRatio,
 		c.OrderCost as MinOrderSum,
 		c.MinOrderCount,
+		c.RegistryCost,
+		c.VitallyImportant,
 		offers.Cost
 FROM core as offers
 	JOIN farm.core0 as c on c.id = offers.id
