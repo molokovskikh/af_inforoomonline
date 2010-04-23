@@ -33,76 +33,79 @@ namespace InforoomOnline
 								 int selStart)
 		{
 			DataSet result = null;
-			uint clientCode = ServiceContext.Client.FirmCode;
-			With.Transaction(helper => {
-					var columnNameMapping = new Dictionary<string, string>
-													{
-														{"offerid", "offers.Id"},
-														{"pricecode", "offers.PriceCode"},
-														{"fullcode", "p.CatalogId"},
-														{"name", "s.synonym"},
-														{"crname", "sfc.synonym"},
-														{"code", "c.Code"},
-														{"codecr", "c.CodeCr"},
-														{"unit", "c.Unit"},
-														{"volume", "c.Volume"},
-														{"quantity", "c.Quantity"},
-														{"note", "c.Note"},
-														{"period", "c.Period"},
-														{"doc", "c.Doc"},
-														{"junk", "c.Junk"},
-														{"cost", "offers.Cost"}
-													};
+			var clientCode = ServiceContext.Client.FirmCode;
+			With.Slave(c => {
+				var helper = new MySqlHelper(c);
+				var columnNameMapping = new Dictionary<string, string> {
+					{"offerid", "offers.Id"},
+					{"pricecode", "offers.PriceCode"},
+					{"fullcode", "p.CatalogId"},
+					{"name", "s.synonym"},
+					{"crname", "sfc.synonym"},
+					{"code", "c.Code"},
+					{"codecr", "c.CodeCr"},
+					{"unit", "c.Unit"},
+					{"volume", "c.Volume"},
+					{"quantity", "c.Quantity"},
+					{"note", "c.Note"},
+					{"period", "c.Period"},
+					{"doc", "c.Doc"},
+					{"junk", "c.Junk"},
+					{"cost", "offers.Cost"}
+				};
 
-					ValidateFieldNames(columnNameMapping, rangeField);
-					ValidateFieldNames(columnNameMapping, sortField);
-					ValidateSortDirection(sortOrder);
+				ValidateFieldNames(columnNameMapping, rangeField);
+				ValidateFieldNames(columnNameMapping, sortField);
+				ValidateSortDirection(sortOrder);
 
-					var groupedValues = GroupValues(rangeField, rangeValue);
+				var groupedValues = GroupValues(rangeField, rangeValue);
 
-					if (rangeField != null
-						&& (rangeValue == null
-							|| rangeField.Length != rangeValue.Length))
-						throw new Exception(" оличество полей дл€ фильтрации не совпадает с количеством значение по которым производитс€ фильтраци€");
+				if (rangeField != null
+					&& (rangeValue == null
+						|| rangeField.Length != rangeValue.Length))
+					throw new Exception(" оличество полей дл€ фильтрации не совпадает с количеством значение по которым производитс€ фильтраци€");
 
-					using (StorageProcedures.GetOffers(helper.Connection, clientCode))
-					{
-						var builder = SqlBuilder
-							.WithCommandText(@"
+				using (StorageProcedures.GetOffers(c, clientCode))
+				{
+					var builder = SqlBuilder
+						.WithCommandText(@"
 SELECT	offers.Id as OfferId,
-		offers.PriceCode,
-		p.CatalogId as FullCode,
-		c.Code,
-		c.CodeCr,
-		s.synonym as Name,
-		sfc.synonym as CrName,
-		c.Unit,
-		c.Volume,
-		c.Quantity,
-		c.Note,
-		c.Period,
-		c.Doc,
-		c.Junk,
-		c.RequestRatio,
-		c.OrderCost as MinOrderSum,
-		c.MinOrderCount,
-		c.RegistryCost,
-		c.VitallyImportant,
-		offers.Cost
+	offers.PriceCode,
+	p.CatalogId as FullCode,
+	c.Code,
+	c.CodeCr,
+	s.synonym as Name,
+	sfc.synonym as CrName,
+	c.Unit,
+	c.Volume,
+	c.Quantity,
+	c.Note,
+	c.Period,
+	c.Doc,
+	c.Junk,
+	c.RequestRatio,
+	c.OrderCost MinOrderSum,
+	c.MinOrderCount,
+	max(cc.Cost) RegistryCost,
+	c.VitallyImportant,
+	offers.Cost
 FROM core as offers
-	JOIN farm.core0 as c on c.id = offers.id
-		JOIN farm.synonym s on c.synonymcode = s.synonymcode
-		JOIN farm.synonymfirmcr sfc on sfc.SynonymFirmCrCode = c.synonymfirmcrcode
-		JOIN Catalogs.Products p on p.Id = c.ProductId");
+JOIN farm.core0 as c on c.id = offers.id
+	JOIN farm.Synonym s on c.synonymcode = s.synonymcode
+	JOIN farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = c.synonymfirmcrcode
+	JOIN Catalogs.Products p on p.Id = c.ProductId
+	left join farm.Core0 rp on rp.PriceCode = 4863 and rp.ProductId = c.ProductId and rp.CodeFirmCr = c.CodeFirmCr
+	left join farm.CoreCosts cc on cc.Core_id = rp.id and cc.PC_CostCode = 8317");
 
-						foreach (var pair in groupedValues)
-							builder.AddInCriteria(columnNameMapping[pair.Key], pair.Value);
+					foreach (var pair in groupedValues)
+						builder.AddInCriteria(columnNameMapping[pair.Key], pair.Value);
 
-						result = builder
-							.AddOrderMultiColumn(sortField, sortOrder)
-							.Limit(limit, selStart)
-							.ToCommand(helper)
-							.Fill();
+					result = builder
+						.Append("group by c.Id")
+						.AddOrderMultiColumn(sortField, sortOrder)
+						.Limit(limit, selStart)
+						.ToCommand(helper)
+						.Fill();
 					}
 				});
 			return result;
@@ -112,8 +115,9 @@ FROM core as offers
 		{
 			DataSet result = null;
 			var clientCode = ServiceContext.Client.FirmCode;
-			With.Transaction(helper => {
-				using (StorageProcedures.GetPrices(helper.Connection, clientCode))
+			With.Slave(c => {
+				var helper = new MySqlHelper(c);
+				using (StorageProcedures.GetPrices(c, clientCode))
 				{
 					result = SqlBuilder
 						.WithCommandText(@"
@@ -152,9 +156,10 @@ from prices p
 		{
 			DataSet result = null;
 			var clientCode = ServiceContext.Client.FirmCode;
-			With.Transaction(helper => {
+			With.Slave(c => {
+				var helper = new MySqlHelper(c);
 				SqlBuilder builder;
-				using (StorageProcedures.GetActivePrices(helper.Connection, clientCode))
+				using (StorageProcedures.GetActivePrices(c, clientCode))
 				{
 					if (offerOnly)
 					{

@@ -103,6 +103,13 @@
             for the type of primitive value to be stored indirectly.
             </summary>
         </member>
+        <member name="M:Castle.DynamicProxy.Generators.Emitters.TypeUtil.GetAllInterfaces(System.Type[])">
+            <summary>
+            Returns list of all unique interfaces implemented given types, including their base interfaces.
+            </summary>
+            <param name="types"></param>
+            <returns></returns>
+        </member>
         <member name="T:Castle.DynamicProxy.Generators.BaseProxyGenerator">
             <summary>
             Base class that exposes the common functionalities
@@ -128,26 +135,26 @@
             </para>
             </summary>
         </member>
-        <member name="M:Castle.DynamicProxy.Generators.BaseProxyGenerator.BuildInvocationNestedType(Castle.DynamicProxy.Generators.Emitters.ClassEmitter,System.Type,System.Reflection.MethodInfo,System.Reflection.MethodInfo,Castle.DynamicProxy.Generators.ConstructorVersion)">
+        <member name="M:Castle.DynamicProxy.Generators.BaseProxyGenerator.BuildInvocationNestedType(Castle.DynamicProxy.Generators.Emitters.ClassEmitter,System.Type,Castle.DynamicProxy.Generators.MethodToGenerate,System.Reflection.MethodInfo,Castle.DynamicProxy.Generators.ConstructorVersion)">
             <summary>
             If callbackMethod is null the InvokeOnTarget implementation
             is just the code to throw an exception
             </summary>
             <param name="emitter">The emitter.</param>
             <param name="targetType">Type of the target.</param>
-            <param name="methodInfo">The method info.</param>
+            <param name="method">The method info.</param>
             <param name="callbackMethod">The callback method.</param>
             <param name="version">The version.</param>
             <returns></returns>
         </member>
-        <member name="M:Castle.DynamicProxy.Generators.BaseProxyGenerator.BuildInvocationNestedType(Castle.DynamicProxy.Generators.Emitters.ClassEmitter,System.Type,System.Reflection.MethodInfo,System.Reflection.MethodInfo,Castle.DynamicProxy.Generators.ConstructorVersion,System.Boolean)">
+        <member name="M:Castle.DynamicProxy.Generators.BaseProxyGenerator.BuildInvocationNestedType(Castle.DynamicProxy.Generators.Emitters.ClassEmitter,System.Type,Castle.DynamicProxy.Generators.MethodToGenerate,System.Reflection.MethodInfo,Castle.DynamicProxy.Generators.ConstructorVersion,System.Boolean)">
             <summary>
             If callbackMethod is null the InvokeOnTarget implementation
             is just the code to throw an exception
             </summary>
             <param name="emitter"></param>
             <param name="targetForInvocation"></param>
-            <param name="methodInfo"></param>
+            <param name="method"></param>
             <param name="callbackMethod"></param>
             <param name="version"></param>
             <param name="allowChangeTarget">If true the invocation will implement the IChangeProxyTarget interface</param>
@@ -163,27 +170,11 @@
             <param name="targetField"></param>
             <param name="version"></param>
         </member>
-        <member name="M:Castle.DynamicProxy.Generators.BaseProxyGenerator.CreateInitializeCacheMethodBody(System.Type,System.Reflection.MethodInfo[],Castle.DynamicProxy.Generators.Emitters.ClassEmitter,Castle.DynamicProxy.Generators.Emitters.ConstructorEmitter)">
+        <member name="M:Castle.DynamicProxy.Generators.BaseProxyGenerator.CreateInitializeCacheMethodBody(System.Type,System.Collections.Generic.IEnumerable{System.Reflection.MethodInfo},Castle.DynamicProxy.Generators.Emitters.ClassEmitter,Castle.DynamicProxy.Generators.Emitters.ConstructorEmitter)">
             <summary>
             Improvement: this cache should be static. We should generate a
             type constructor instead
             </summary>
-        </member>
-        <member name="M:Castle.DynamicProxy.Generators.BaseProxyGenerator.AcceptMethod(System.Reflection.MethodInfo,System.Boolean)">
-            <summary>
-            Performs some basic screening and invokes the <see cref="T:Castle.DynamicProxy.IProxyGenerationHook"/>
-            to select methods.
-            </summary>
-            <param name="method"></param>
-            <param name="onlyVirtuals"></param>
-            <returns></returns>
-        </member>
-        <member name="M:Castle.DynamicProxy.Generators.BaseProxyGenerator.IsAccessible(System.Reflection.MethodInfo)">
-            <summary>
-            Checks if the method is public or protected.
-            </summary>
-            <param name="method"></param>
-            <returns></returns>
         </member>
         <member name="M:Castle.DynamicProxy.Generators.BaseProxyGenerator.ShouldSkipAttributeReplication(System.Attribute)">
             <summary>
@@ -192,10 +183,14 @@
             something to the CLR, where they should be skipped.
             </summary>
         </member>
-        <member name="M:Castle.DynamicProxy.Generators.BaseProxyGenerator.ShouldCreateNewSlot(System.Reflection.MethodInfo)">
+        <member name="F:Castle.DynamicProxy.Generators.BaseProxyGenerator.Proxy.Instance">
             <summary>
-            Checks if the method has the same signature as a method that was marked as
-            one that should generate a new vtable slot.
+            Used to mark interface target as proxy instance. Used for special interfaces <see cref="T:System.Runtime.Serialization.ISerializable"/> and <see cref="T:Castle.Core.Interceptor.IProxyTargetAccessor"/>.
+            </summary>
+        </member>
+        <member name="F:Castle.DynamicProxy.Generators.BaseProxyGenerator.Proxy.Target">
+            <summary>
+            Used to mark interface target as proxy target.
             </summary>
         </member>
         <member name="M:Castle.DynamicProxy.Generators.CacheKey.#ctor(System.Type,System.Type[],Castle.DynamicProxy.ProxyGenerationOptions)">
@@ -211,29 +206,20 @@
             
             </summary>
         </member>
-        <member name="M:Castle.DynamicProxy.Generators.EventToGenerate.#ctor(System.String,System.Type,System.Reflection.MethodInfo,System.Reflection.MethodInfo,System.Reflection.EventAttributes)">
+        <member name="M:Castle.DynamicProxy.Generators.EventToGenerate.#ctor(System.String,System.Type,Castle.DynamicProxy.Generators.IProxyMethod,Castle.DynamicProxy.Generators.IProxyMethod,System.Reflection.EventAttributes)">
             <summary>
             Initializes a new instance of the <see cref="T:Castle.DynamicProxy.Generators.EventToGenerate"/> class.
             </summary>
             <param name="name">The name.</param>
             <param name="type">The type.</param>
-            <param name="addMethod">The add method.</param>
-            <param name="removeMethod">The remove method.</param>
+            <param name="adder">The add method.</param>
+            <param name="remover">The remove method.</param>
             <param name="attributes">The attributes.</param>
         </member>
         <member name="T:Castle.DynamicProxy.Generators.InterfaceProxyWithTargetGenerator">
             <summary>
             
             </summary>
-        </member>
-        <member name="M:Castle.DynamicProxy.Generators.InterfaceProxyWithTargetGenerator.FindMethodOnTargetType(System.Reflection.MethodInfo,System.Type,System.Boolean)">
-            <summary>
-            Finds the type of the method on target.
-            </summary>
-            <param name="methodOnInterface">The method on interface.</param>
-            <param name="proxyTargetType">Type of the proxy target.</param>
-            /// <param name="checkMixins">if set to <c>true</c> will check implementation on mixins.</param>
-            <returns></returns>
         </member>
         <member name="M:Castle.DynamicProxy.Generators.InterfaceProxyWithTargetGenerator.IsTypeEquivalent(System.Type,System.Type)">
             <summary>
@@ -243,14 +229,6 @@
             <param name="sourceType"></param>
             <param name="targetType"></param>
             <returns></returns>
-        </member>
-        <member name="M:Castle.DynamicProxy.Generators.InterfaceProxyWithTargetGenerator.IsMethodEquivalent(System.Reflection.MethodInfo,System.Reflection.MethodInfo)">
-            <summary>
-            Checks whether the given methods are the same.
-            </summary>
-            <param name="methodInfo"></param>
-            <param name="methodOnInterface"></param>
-            <returns>True if the methods are the same.</returns>
         </member>
         <member name="T:Castle.DynamicProxy.Generators.InterfaceGeneratorType">
             <summary>
@@ -262,6 +240,30 @@
             <summary>
             Returns the methods implemented by a type. Use this instead of Type.GetMethods() to work around a CLR issue
             where duplicate MethodInfos are returned by Type.GetMethods() after a token of a generic type's method was loaded.
+            </summary>
+        </member>
+        <member name="M:Castle.DynamicProxy.Generators.ProxyElementTarget.IsAccessible(System.Reflection.MethodBase)">
+            <summary>
+            Checks if the method is public or protected.
+            </summary>
+            <param name="method"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Castle.DynamicProxy.Generators.ProxyElementTarget.AcceptMethod(System.Reflection.MethodInfo,System.Boolean,Castle.DynamicProxy.IProxyGenerationHook)">
+            <summary>
+            Performs some basic screening and invokes the <see cref="T:Castle.DynamicProxy.IProxyGenerationHook"/>
+            to select methods.
+            </summary>
+            <param name="method"></param>
+            <param name="onlyVirtuals"></param>
+            <param name="hook"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Castle.DynamicProxy.Generators.ProxyElementTarget.ShouldSkipAttributeReplication(System.Attribute)">
+            <summary>
+            Attributes should be replicated if they are non-inheritable,
+            but there are some special cases where the attributes means
+            something to the CLR, where they should be skipped.
             </summary>
         </member>
         <member name="T:Castle.DynamicProxy.Serialization.ProxyObjectReference">

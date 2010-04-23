@@ -8,7 +8,7 @@ namespace InforoomOnline
 	[ServiceContract]
 	public interface IInforoomOnlineService
 	{
-		[OperationContract, FaultContract(typeof(DoNotHavePermissionFault)), OfferRowCalculator]
+		[OperationContract, FaultContract(typeof(DoNotHavePermissionFault)), OfferRowCalculator("FullCode")]
 		DataSet GetOffers(string[] rangeField, 
 						  string[] rangeValue, 
 						  bool newEar, 
