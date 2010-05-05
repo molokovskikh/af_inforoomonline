@@ -51,7 +51,8 @@ namespace InforoomOnline
 					{"period", "c.Period"},
 					{"doc", "c.Doc"},
 					{"junk", "c.Junk"},
-					{"cost", "offers.Cost"}
+					{"cost", "offers.Cost"},
+					{"SupplierId", "ap.FirmCode"},
 				};
 
 				ValidateFieldNames(columnNameMapping, rangeField);
@@ -70,6 +71,7 @@ namespace InforoomOnline
 					var builder = SqlBuilder
 						.WithCommandText(@"
 SELECT	offers.Id as OfferId,
+	ap.FirmCode SupplierId,
 	offers.PriceCode,
 	p.CatalogId as FullCode,
 	c.Code,
@@ -92,6 +94,7 @@ SELECT	offers.Id as OfferId,
 FROM core as offers
 JOIN farm.core0 as c on c.id = offers.id
 	JOIN farm.Synonym s on c.synonymcode = s.synonymcode
+	join usersettings.ActivePrices ap on ap.PriceCode = c.PriceCode
 	JOIN farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = c.synonymfirmcrcode
 	JOIN Catalogs.Products p on p.Id = c.ProductId
 	left join farm.Core0 rp on rp.PriceCode = 4863 and rp.ProductId = c.ProductId and rp.CodeFirmCr = c.CodeFirmCr
@@ -121,7 +124,8 @@ JOIN farm.core0 as c on c.id = offers.id
 				{
 					result = SqlBuilder
 						.WithCommandText(@"
-select	p.PriceCode as PriceCode,
+select	p.FirmCode SupplierId,
+		p.PriceCode as PriceCode,
 		p.PriceName as PriceName,
 		p.PriceDate as PriceDate,
 		rd.ContactInfo,

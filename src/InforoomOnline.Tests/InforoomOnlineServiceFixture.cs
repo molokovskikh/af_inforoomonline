@@ -81,6 +81,7 @@ namespace InforoomOnline.Tests
 			Assert.That(columns.Contains("MinOrderSum"));
 			Assert.That(columns.Contains("MinOrderCount"));
 			Assert.That(columns.Contains("RegistryCost"));
+			Assert.That(columns.Contains("SupplierId"));
 			
 
             LogDataSet(data);
@@ -89,7 +90,10 @@ namespace InforoomOnline.Tests
         [Test]
         public void GetPriceList()
         {
-            LogDataSet(service.GetPriceList(new string[0]));
+        	var priceList = service.GetPriceList(new string[0]);
+        	Assert.That(priceList.Tables[0].Columns.Contains("SupplierId"));
+        	LogDataSet(priceList);
+
             LogDataSet(service.GetPriceList(new[] {"%à%"}));
         }
 
