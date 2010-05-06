@@ -36,7 +36,7 @@ namespace InforoomOnline
 			var clientCode = ServiceContext.Client.FirmCode;
 			With.Slave(c => {
 				var helper = new MySqlHelper(c);
-				var columnNameMapping = new Dictionary<string, string> {
+				var columnNameMapping = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) {
 					{"offerid", "offers.Id"},
 					{"pricecode", "offers.PriceCode"},
 					{"fullcode", "p.CatalogId"},
@@ -272,7 +272,7 @@ FROM Catalogs.Catalog c
                 return;
 
 		    foreach (var fieldName in fieldsToValidate)
-		        if (!mapping.ContainsKey(fieldName.ToLower()))
+		        if (!mapping.ContainsKey(fieldName))
 		            throw new Exception(String.Format("Не найдено сопоставление для поля {0}", fieldName));
 		}
 

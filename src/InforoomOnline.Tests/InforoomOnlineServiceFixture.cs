@@ -68,7 +68,14 @@ namespace InforoomOnline.Tests
             LogDataSet(service.GetNamesFromCatalog(new string[0], new[] {"*Тест*"}, true, 100, 0));
         }
 
-        [Test]
+		[Test]
+		public void Get_offers_with_filter_by_supplier_id()
+		{
+			var data = service.GetOffers(new[] {"SupplierId"}, new[] {"4598"}, false, null, null, 100, 0);
+			Assert.That(data.Tables[0].Rows.Count, Is.GreaterThan(0));
+		}
+
+		[Test]
         public void GetOffers()
         {
             var data = service.GetOffers(null, null, false,
