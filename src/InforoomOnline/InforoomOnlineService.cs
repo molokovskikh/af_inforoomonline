@@ -7,6 +7,8 @@ using Common.Models.Repositories;
 using Common.MySql;
 using Common.Service;
 using Common.Tools;
+using MySql.Data.MySqlClient;
+using MySqlHelper = Common.MySql.MySqlHelper;
 using With=Common.MySql.With;
 
 namespace InforoomOnline
@@ -24,6 +26,30 @@ namespace InforoomOnline
 			_offerRepository = offerRepository;
 		}
 
+		private IDisposable GetPrices(MySqlConnection connection)
+		{
+			if (ServiceContext.IsFuture())
+				return StorageProcedures.FutureGetPrices(connection, ServiceContext.User.Id);
+			else
+				return StorageProcedures.GetPrices(connection, ServiceContext.Client.FirmCode);
+		}
+
+		private IDisposable GetOffers(MySqlConnection connection)
+		{
+			if (ServiceContext.IsFuture())
+				return StorageProcedures.FutureGetOffers(connection, ServiceContext.User.Id);
+			else
+				return StorageProcedures.GetOffers(connection, ServiceContext.Client.FirmCode);
+		}
+
+		private IDisposable GetActivePrices(MySqlConnection connection)
+		{
+			if (ServiceContext.IsFuture())
+				return StorageProcedures.FutureGetActivePrices(connection, ServiceContext.User.Id);
+			else
+				return StorageProcedures.GetActivePrices(connection, ServiceContext.Client.FirmCode);
+		}
+
 		public DataSet GetOffers(string[] rangeField,
 								 string[] rangeValue,
 								 bool newEar,
@@ -32,9 +58,7 @@ namespace InforoomOnline
 								 int limit,
 								 int selStart)
 		{
-			DataSet result = null;
-			var clientCode = ServiceContext.Client.FirmCode;
-			With.Slave(c => {
+			return With.Slave(c => {
 				var helper = new MySqlHelper(c);
 				var columnNameMapping = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) {
 					{"offerid", "offers.Id"},
@@ -66,7 +90,7 @@ namespace InforoomOnline
 						|| rangeField.Length != rangeValue.Length))
 					throw new Exception("Количество полей для фильтрации не совпадает с количеством значение по которым производится фильтрация");
 
-				using (StorageProcedures.GetOffers(c, clientCode))
+				using (GetOffers(c))
 				{
 					var builder = SqlBuilder
 						.WithCommandText(@"
@@ -103,7 +127,7 @@ JOIN farm.core0 as c on c.id = offers.id
 					foreach (var pair in groupedValues)
 						builder.AddInCriteria(columnNameMapping[pair.Key], pair.Value);
 
-					result = builder
+					return builder
 						.Append("group by c.Id")
 						.AddOrderMultiColumn(sortField, sortOrder)
 						.Limit(limit, selStart)
@@ -111,18 +135,15 @@ JOIN farm.core0 as c on c.id = offers.id
 						.Fill();
 					}
 				});
-			return result;
 		}
 
 		public DataSet GetPriceList(string[] firmName)
 		{
-			DataSet result = null;
-			var clientCode = ServiceContext.Client.FirmCode;
-			With.Slave(c => {
+			return With.Slave(c => {
 				var helper = new MySqlHelper(c);
-				using (StorageProcedures.GetPrices(c, clientCode))
+				using (GetPrices(c))
 				{
-					result = SqlBuilder
+					return SqlBuilder
 						.WithCommandText(@"
 select	p.FirmCode SupplierId,
 		p.PriceCode as PriceCode,
@@ -131,17 +152,17 @@ select	p.FirmCode SupplierId,
 		rd.ContactInfo,
 		rd.OperativeInfo,
 		p.PublicUpCost as PublicUpCost,
-  		p.DisabledByClient,
+		p.DisabledByClient,
 		cd.ShortName as FirmShortName,
 		cd.FullName as FirmFullName,
 		rd.SupportPhone as RegionPhone,
 		(select c.contactText
-        from contacts.contact_groups cg
-          join contacts.contacts c on cg.Id = c.ContactOwnerId
-        where cd.ContactGroupOwnerId = cg.ContactGroupOwnerId
-              and cg.Type = 0
-              and c.Type = 1
-        limit 1) as Phone,
+		from contacts.contact_groups cg
+		  join contacts.contacts c on cg.Id = c.ContactOwnerId
+		where cd.ContactGroupOwnerId = cg.ContactGroupOwnerId
+			  and cg.Type = 0
+			  and c.Type = 1
+		limit 1) as Phone,
 		cd.Adress as Address
 from prices p
 	join usersettings.clientsdata cd on p.firmcode = cd.firmcode
@@ -149,21 +170,18 @@ from prices p
 						.AddInCriteria("cd.ShortName", firmName)
 						.AddOrder("cd.ShortName")
 						.ToCommand(helper)
-						.AddParameter("?ClientCode", clientCode)
 						.Fill();
 				}
 			});
-			return result;
 		}
 
 		public DataSet GetNamesFromCatalog(string[] name, string[] form, bool offerOnly, int limit, int selStart)
 		{
 			DataSet result = null;
-			var clientCode = ServiceContext.Client.FirmCode;
 			With.Slave(c => {
 				var helper = new MySqlHelper(c);
 				SqlBuilder builder;
-				using (StorageProcedures.GetActivePrices(c, clientCode))
+				using (GetActivePrices(c))
 				{
 					if (offerOnly)
 					{
@@ -199,7 +217,6 @@ FROM Catalogs.Catalog c
 						.AddCriteria("c.Hidden = 0")
 						.Limit(limit, selStart)
 						.ToCommand(helper)
-						.AddParameter("?ClientCode", clientCode)
 						.Fill();
 				}
 			});
@@ -213,8 +230,8 @@ FROM Catalogs.Catalog c
 			toResult.Tables[0].Columns.Add("OfferId", typeof(long));
 			toResult.Tables[0].Columns.Add("Posted", typeof(bool));
 
-			var client = ServiceContext.Client;
-			var orderRules = _orderRulesRepository.Get(client.FirmCode);
+			var client = ServiceContext.Orderable;
+			var orderRules = _orderRulesRepository.Get(ServiceContext.Client.FirmCode);
 
 			var offers = _offerRepository.GetByIds(client, offerId.Select(v => (ulong)v));
 			var orders = new List<Order>();
@@ -231,10 +248,13 @@ FROM Catalogs.Catalog c
 					continue;
 				}
 				row["Posted"] = true;
-				var order = orders.FirstOrDefault(o => o.PriceList.PriceCode == offer.PriceList.PriceCode);
+				var order = orders.FirstOrDefault(o => o.PriceList.PriceCode == offer.PriceList.Id.Price.PriceCode);
 				if (order == null)
 				{
-					order = new Order(true, offer.PriceList, client, orderRules);
+					if (ServiceContext.IsFuture())
+						order = new Order(true, offer.PriceList, ServiceContext.User, orderRules);
+					else
+						order = new Order(true, offer.PriceList, (Client)client, orderRules);
 					order.ClientAddition = message[i];
 					orders.Add(order);
 				}
@@ -266,14 +286,14 @@ FROM Catalogs.Catalog c
 		}
 
 		private static void ValidateFieldNames(IDictionary<string, string> mapping,
-		                                       IEnumerable<string> fieldsToValidate)
+											   IEnumerable<string> fieldsToValidate)
 		{
 			if (fieldsToValidate == null)
-                return;
+				return;
 
-		    foreach (var fieldName in fieldsToValidate)
-		        if (!mapping.ContainsKey(fieldName))
-		            throw new Exception(String.Format("Не найдено сопоставление для поля {0}", fieldName));
+			foreach (var fieldName in fieldsToValidate)
+				if (!mapping.ContainsKey(fieldName))
+					throw new Exception(String.Format("Не найдено сопоставление для поля {0}", fieldName));
 		}
 
 		private static void ValidateSortDirection(IEnumerable<string> sortDirections)

@@ -110,7 +110,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Web.release.config" />
+    <None Include="Web.release.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
