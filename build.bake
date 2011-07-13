@@ -5,11 +5,10 @@ import file from Test.bake
 import file from Tools.bake
 
 Global(
-	project : "InforoomOnline",
-	humanReadableName : "Сервис для мониторинга рынка и формирования заказов в реальном времени",
-	deployTo : """\\acdcserv.adc.analit.net\WebApps\InforoomOnLine"""
+	Project : "InforoomOnline",
+	HumanReadableName : "Сервис для мониторинга рынка и формирования заказов в реальном времени"
 )
 
-Task @default, [@buildWebService]
+task @default, [@buildWebService]
 
-Task @deploy, [@buildWebService, @SendDeployNotification, @deployWebService]
+task @deploy, [@buildWebService, @SendDeployNotification, @deployWebService]
