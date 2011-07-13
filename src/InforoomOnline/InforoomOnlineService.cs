@@ -58,7 +58,7 @@ namespace InforoomOnline
 								 int limit,
 								 int selStart)
 		{
-			return With.Slave(c => {
+			return With.Connection(c => {
 				var helper = new MySqlHelper(c);
 				var columnNameMapping = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) {
 					{"offerid", "offers.Id"},
@@ -139,7 +139,7 @@ JOIN farm.core0 as c on c.id = offers.id
 
 		public DataSet GetPriceList(string[] firmName)
 		{
-			return With.Slave(c => {
+			return With.Connection(c => {
 				var helper = new MySqlHelper(c);
 				using (GetPrices(c))
 				{
@@ -151,7 +151,7 @@ select	p.FirmCode SupplierId,
 		p.PriceDate as PriceDate,
 		rd.ContactInfo,
 		rd.OperativeInfo,
-		p.PublicUpCost as PublicUpCost,
+		0 as PublicUpCost,
 		p.DisabledByClient,
 		cd.ShortName as FirmShortName,
 		cd.FullName as FirmFullName,
@@ -178,7 +178,7 @@ from prices p
 		public DataSet GetNamesFromCatalog(string[] name, string[] form, bool offerOnly, int limit, int selStart)
 		{
 			DataSet result = null;
-			With.Slave(c => {
+			With.Connection(c => {
 				var helper = new MySqlHelper(c);
 				SqlBuilder builder;
 				using (GetActivePrices(c))
