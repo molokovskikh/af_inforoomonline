@@ -103,7 +103,7 @@ namespace InforoomOnline.Tests
 			service.GetPriceList(new[] {"*"});
 
 			var lastUpdate = LogRepositoryFixture.GetLastAccessTime("kvasov", "IOLTime");
-			Assert.That(begin - lastUpdate, Is.LessThan(TimeSpan.FromSeconds(1)));
+			Assert.That(begin - lastUpdate, Is.LessThan(TimeSpan.FromSeconds(10)));
 		}
 
 		[Test]

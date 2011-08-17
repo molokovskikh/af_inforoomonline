@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
+using Castle.ActiveRecord;
 using Castle.Core;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
@@ -16,6 +17,7 @@ using MySql.Data.MySqlClient;
 using NHibernate.Criterion;
 using NHibernate.Mapping.Attributes;
 using NUnit.Framework;
+using Test.Support;
 using Order=Common.Models.Order;
 
 namespace InforoomOnline.Tests
@@ -25,6 +27,10 @@ namespace InforoomOnline.Tests
 	{
 		private IInforoomOnlineService service;
 		private string[] Empty;
+		private TestClient client;
+		private TestUser user;
+		private TestAddress address;
+		private SessionScope scope;
 
 		public T[] Array<T>(params T[] items)
 		{
@@ -34,7 +40,13 @@ namespace InforoomOnline.Tests
 		[SetUp]
 		public void Setup()
 		{
-			ServiceContext.GetUserName = () => "kvasov";
+			scope = new SessionScope();
+
+			client = TestClient.Create();
+			address = client.CreateAddress();
+			user = client.Users.First();
+			address.Save();
+			ServiceContext.GetUserName = () => user.Login;
 
 			var container = new WindsorContainer();
 			container.AddComponent("RepositoryInterceptor", typeof(RepositoryInterceptor));
@@ -57,6 +69,13 @@ namespace InforoomOnline.Tests
 			service = IoC.Resolve<IInforoomOnlineService>();
 		}
 
+		[TearDown]
+		public void TearDown()
+		{
+			if (scope != null)
+				scope.Dispose();
+		}
+
 		[Test]
 		public void GetNameFromCatalog()
 		{
@@ -71,7 +90,8 @@ namespace InforoomOnline.Tests
 		[Test]
 		public void Get_offers_with_filter_by_supplier_id()
 		{
-			var data = service.GetOffers(new[] {"SupplierId"}, new[] {"4598"}, false, null, null, 100, 0);
+			var priceId = user.GetActivePricesList().Where(p => p.PositionCount > 100).First().Id.PriceId;
+			var data = service.GetOffers(new[] {"SupplierId"}, new[] {priceId.ToString()}, false, null, null, 100, 0);
 			Assert.That(data.Tables[0].Rows.Count, Is.GreaterThan(0));
 		}
 
@@ -107,6 +127,7 @@ namespace InforoomOnline.Tests
 		[Test]
 		public void PostOrder()
 		{
+			Assert.That(client.Addresses.Count, Is.EqualTo(2), "для того что бы тест удался адресов должно быть два");
 			var offerRepository = IoC.Resolve<IOfferRepository>();
 			var orderRepository = IoC.Resolve<IRepository<Order>>();
 
@@ -115,38 +136,28 @@ namespace InforoomOnline.Tests
 			Assert.That(data.Tables[0].Rows.Count, Is.GreaterThan(0), "не нашли предложений");
 			var row = data.Tables[0].Rows[0];
 			var coreId = Convert.ToInt64(row["OfferId"]);
-
-			using (var connection = new MySqlConnection(ConfigurationManager.ConnectionStrings["Main"].ConnectionString))
-			{
-				connection.Open();
-				var command = new MySqlCommand(@"
-update farm.core0
-set OrderCost = 10.5,
-	MinOrderCount = 50,
-	RequestRatio = 10
-where id = ?coreid;
-
-delete from orders.ordershead
-where clientcode = 2575 and writetime > curdate();", connection);
-				command.Parameters.AddWithValue("?CoreId", coreId);
-				command.ExecuteNonQuery();
-			}
+			var core = TestCore.Find((ulong)coreId);
+			core.MinOrderCount = 50;
+			core.Save();
+			scope.Dispose();
 
 			var result = service.PostOrder(Array(coreId),
 											Array(50),
-											Array("это тестовый заказ"));
+											Array("это тестовый заказ"),
+											address.Id);
 
 			Assert.That(result.Tables[0].Rows[0]["OfferId"], Is.EqualTo(coreId));
 			Assert.That(result.Tables[0].Rows[0]["Posted"], Is.EqualTo(true));
 
-			var offer = offerRepository.GetById(new Client {FirmCode = 2575}, (ulong)coreId);
-			var order = orderRepository.FindOne(Expression.Eq("ClientCode", 2575u)
-												&& Expression.Ge("WriteTime", begin));
+			scope = new SessionScope();
+			var offer = offerRepository.GetById(new User {Id = user.Id}, (ulong)coreId);
+			var order = TestOrder.Queryable.Single(o => o.Client == client);
 			Assert.That(offer.MinOrderCount, Is.EqualTo(50));
-			Assert.That(order.OrderItems[0].CoreId, Is.EqualTo(offer.Id));
-			Assert.That(order.OrderItems[0].OrderCost, Is.EqualTo(offer.OrderCost));
-			Assert.That(order.OrderItems[0].MinOrderCount, Is.EqualTo(offer.MinOrderCount));
-			Assert.That(order.OrderItems[0].RequestRatio, Is.EqualTo(offer.RequestRatio));
+			Assert.That(order.Address.Id, Is.EqualTo(address.Id));
+			Assert.That(order.Items[0].CoreId, Is.EqualTo(offer.Id.CoreId));
+			Assert.That(order.Items[0].OrderCost, Is.EqualTo(offer.OrderCost));
+			Assert.That(order.Items[0].MinOrderCount, Is.EqualTo(offer.MinOrderCount));
+			Assert.That(order.Items[0].RequestRatio, Is.EqualTo(offer.RequestRatio));
 		}
 
 		[Test]

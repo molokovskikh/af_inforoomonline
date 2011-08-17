@@ -23,6 +23,6 @@ namespace InforoomOnline
 		DataSet GetNamesFromCatalog(string[] name, string[] form, bool offerOnly, int limit, int selStart);
 
 		[OperationContract, FaultContract(typeof(DoNotHavePermissionFault))]
-		DataSet PostOrder(long[] offerId, Int32[] quantity, string[] message);
+		DataSet PostOrder(long[] offerId, Int32[] quantity, string[] message, uint addressId);
 	}
 }

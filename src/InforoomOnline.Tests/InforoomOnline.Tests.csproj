@@ -113,6 +113,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FixtureSetup.cs" />
     <Compile Include="InforoomOnlineServiceFixture.cs" />
     <Compile Include="IntegrationFixture.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
@@ -197,6 +198,10 @@
     <ProjectReference Include="..\InforoomOnline\InforoomOnline.csproj">
       <Project>{C5D0894B-BB0F-4B87-9568-915381642F58}</Project>
       <Name>InforoomOnline</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Test.Support\Test.Support\Test.Support.csproj">
+      <Project>{A215E837-1208-49E3-AF93-A9612223122C}</Project>
+      <Name>Test.Support</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

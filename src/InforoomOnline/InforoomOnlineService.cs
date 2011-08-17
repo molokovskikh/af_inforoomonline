@@ -153,22 +153,22 @@ select	p.FirmCode SupplierId,
 		rd.OperativeInfo,
 		0 as PublicUpCost,
 		p.DisabledByClient,
-		cd.ShortName as FirmShortName,
-		cd.FullName as FirmFullName,
+		s.Name as FirmShortName,
+		s.FullName as FirmFullName,
 		rd.SupportPhone as RegionPhone,
 		(select c.contactText
 		from contacts.contact_groups cg
 		  join contacts.contacts c on cg.Id = c.ContactOwnerId
-		where cd.ContactGroupOwnerId = cg.ContactGroupOwnerId
+		where s.ContactGroupOwnerId = cg.ContactGroupOwnerId
 			  and cg.Type = 0
 			  and c.Type = 1
 		limit 1) as Phone,
-		cd.Adress as Address
+		'' as Address
 from prices p
-	join usersettings.clientsdata cd on p.firmcode = cd.firmcode
-		join usersettings.regionaldata rd on rd.firmcode = cd.firmcode and rd.regioncode = p.regioncode")
-						.AddInCriteria("cd.ShortName", firmName)
-						.AddOrder("cd.ShortName")
+	join Future.Suppliers s on p.firmcode = s.Id
+		join usersettings.regionaldata rd on rd.firmcode = s.Id and rd.regioncode = p.regioncode")
+						.AddInCriteria("s.Name", firmName)
+						.AddOrder("s.Name")
 						.ToCommand(helper)
 						.Fill();
 				}
@@ -223,43 +223,50 @@ FROM Catalogs.Catalog c
 			return result;
 		}
 
-		public DataSet PostOrder(long[] offerId, int[] quantity, string[] message)
+		public DataSet PostOrder(long[] offerId, int[] quantity, string[] message, uint addressId)
 		{
+
 			var toResult = new DataSet();
 			toResult.Tables.Add();
 			toResult.Tables[0].Columns.Add("OfferId", typeof(long));
 			toResult.Tables[0].Columns.Add("Posted", typeof(bool));
-
-			var client = ServiceContext.Orderable;
-			var orderRules = _orderRulesRepository.Get(ServiceContext.Client.FirmCode);
-
-			var offers = _offerRepository.GetByIds(client, offerId.Select(v => (ulong)v));
 			var orders = new List<Order>();
-			for(var i = 0; i < offerId.Length; i++)
-			{
-				var id = (ulong)offerId[i];
-				var row = toResult.Tables[0].NewRow();
-				toResult.Tables[0].Rows.Add(row);
-				row["OfferId"] = offerId[i];
-				var offer = offers.FirstOrDefault(o => o.Id == id);
-				if (offer == null)
-				{
-					row["Posted"] = false;
-					continue;
-				}
-				row["Posted"] = true;
-				var order = orders.FirstOrDefault(o => o.PriceList.PriceCode == offer.PriceList.Id.Price.PriceCode);
-				if (order == null)
-				{
-					if (ServiceContext.IsFuture())
-						order = new Order(true, offer.PriceList, ServiceContext.User, orderRules);
-					else
-						order = new Order(true, offer.PriceList, (Client)client, orderRules);
-					order.ClientAddition = message[i];
-					orders.Add(order);
-				}
 
-				order.AddOrderItem(offer, (uint) quantity[i]);
+			using(new UnitOfWork())
+			{
+				var session = UnitOfWork.Current.CurrentSession;
+
+				var user = ServiceContext.User;
+				var address = session.Load<Address>(addressId);
+				var orderRules = _orderRulesRepository.Get(ServiceContext.Client.FirmCode);
+				orderRules.CheckAddressAccessibility = false;
+				orderRules.Strict = true;
+
+				var offers = _offerRepository.GetByIds(user, offerId.Select(v => (ulong)v));
+			
+				for(var i = 0; i < offerId.Length; i++)
+				{
+					var id = (ulong)offerId[i];
+					var row = toResult.Tables[0].NewRow();
+					toResult.Tables[0].Rows.Add(row);
+					row["OfferId"] = offerId[i];
+					var offer = offers.FirstOrDefault(o => o.Id.CoreId == id);
+					if (offer == null)
+					{
+						row["Posted"] = false;
+						continue;
+					}
+					row["Posted"] = true;
+					var order = orders.FirstOrDefault(o => o.PriceList.PriceCode == offer.PriceList.Id.Price.PriceCode);
+					if (order == null)
+					{
+						order = new Order(offer.PriceList, user, address, orderRules);
+						order.ClientAddition = message[i];
+						orders.Add(order);
+					}
+
+					order.AddOrderItem(offer, (uint) quantity[i]);
+				}
 			}
 			Common.Models.With.Transaction(() => {
 				orders.Each(_orderRepository.Save);
