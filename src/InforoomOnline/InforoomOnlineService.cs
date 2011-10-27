@@ -28,26 +28,17 @@ namespace InforoomOnline
 
 		private IDisposable GetPrices(MySqlConnection connection)
 		{
-			if (ServiceContext.IsFuture())
-				return StorageProcedures.FutureGetPrices(connection, ServiceContext.User.Id);
-			else
-				return StorageProcedures.GetPrices(connection, ServiceContext.Client.FirmCode);
+			return StorageProcedures.FutureGetPrices(connection, ServiceContext.User.Id);
 		}
 
 		private IDisposable GetOffers(MySqlConnection connection)
 		{
-			if (ServiceContext.IsFuture())
-				return StorageProcedures.FutureGetOffers(connection, ServiceContext.User.Id);
-			else
-				return StorageProcedures.GetOffers(connection, ServiceContext.Client.FirmCode);
+			return StorageProcedures.FutureGetOffers(connection, ServiceContext.User.Id);
 		}
 
 		private IDisposable GetActivePrices(MySqlConnection connection)
 		{
-			if (ServiceContext.IsFuture())
-				return StorageProcedures.FutureGetActivePrices(connection, ServiceContext.User.Id);
-			else
-				return StorageProcedures.GetActivePrices(connection, ServiceContext.Client.FirmCode);
+			return StorageProcedures.FutureGetActivePrices(connection, ServiceContext.User.Id);
 		}
 
 		public DataSet GetOffers(string[] rangeField,
