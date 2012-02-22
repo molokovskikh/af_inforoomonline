@@ -1,5 +1,4 @@
 using System;
-using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.Reflection;
@@ -12,9 +11,7 @@ using Common.Models;
 using Common.Models.Repositories;
 using Common.Service;
 using Common.Service.Interceptors;
-using Common.Service.Tests.ForTesting;
-using MySql.Data.MySqlClient;
-using NHibernate.Criterion;
+using Common.Tools;
 using NHibernate.Mapping.Attributes;
 using NUnit.Framework;
 using Test.Support;
@@ -22,20 +19,13 @@ using Order=Common.Models.Order;
 
 namespace InforoomOnline.Tests
 {
-	[TestFixture]
-	public class InforoomOnlineServiceFixture
+	public class BaseFixture
 	{
-		private IInforoomOnlineService service;
-		private string[] Empty;
-		private TestClient client;
-		private TestUser user;
-		private TestAddress address;
-		private SessionScope scope;
-
-		public T[] Array<T>(params T[] items)
-		{
-			return items;
-		}
+		protected TestClient client;
+		protected TestUser user;
+		protected TestAddress address;
+		protected SessionScope scope;
+		protected IInforoomOnlineService service;
 
 		[SetUp]
 		public void Setup()
@@ -72,8 +62,18 @@ namespace InforoomOnline.Tests
 		[TearDown]
 		public void TearDown()
 		{
-			if (scope != null)
-				scope.Dispose();
+			scope.SafeDispose();
+		}
+	}
+
+	[TestFixture]
+	public class InforoomOnlineServiceFixture : BaseFixture
+	{
+		private string[] Empty;
+
+		public T[] Array<T>(params T[] items)
+		{
+			return items;
 		}
 
 		[Test]

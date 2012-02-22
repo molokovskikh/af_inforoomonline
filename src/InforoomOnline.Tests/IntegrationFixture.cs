@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.ServiceModel.Description;
 using System.Web.Services.Protocols;
+using Castle.ActiveRecord;
 using Common.Models;
 using Common.Service.Models;
 using Common.Service.Tests;
@@ -10,40 +12,47 @@ using InforoomOnline.Tests.Properties;
 using NHibernate.Criterion;
 using NHibernate.Mapping.Attributes;
 using NUnit.Framework;
+using Test.Support;
 
 namespace InforoomOnline.Tests
 {
-    [TestFixture]
-    public class IntegrationFixture
-    {
+	[TestFixture]
+	public class IntegrationFixture
+	{
 		private localhost.InforoomOnlineService service;
-    	private SessionFactoryHolder sessionFactoryHolder;
+		private SessionFactoryHolder sessionFactoryHolder;
+		private TestUser user;
 
 		[SetUp]
 		public void Setup()
 		{
 			service = new localhost.InforoomOnlineService();
-			SecurityRepositoryFixture.DeleteAllPermissions("kvasov");
-			SecurityRepositoryFixture.CreatePermission("kvasov", "IOL");
+			using (new SessionScope()) {
+				user = TestUser.Queryable.First(u => u.Login == "kvasov");
+				if (!user.AssignedPermissions.Any(p => p.Shortcut == "IOL")) {
+					user.AssignedPermissions.Add(TestUserPermission.ByShortcut("IOL"));
+					user.Save();
+				}
+			}
 
 			sessionFactoryHolder = new SessionFactoryHolder();
 			sessionFactoryHolder.Configuration.AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("Common.Service")));
 		}
 
-    	[Test]
-        public void IntegrationTest()
-        {
-            var offers = service.GetOffers(null, null, false, true, null, null, 1000, true, 0, true);
-            Assert.That(offers.Tables.Count,
-                        Is.EqualTo(1));
-        }
+		[Test]
+		public void IntegrationTest()
+		{
+			var offers = service.GetOffers(null, null, false, true, null, null, 1000, true, 0, true);
+			Assert.That(offers.Tables.Count,
+						Is.EqualTo(1));
+		}
 
 		[Test]
 		public void CheckWsdl()
 		{
 			var metaTransfer =
 				new MetadataExchangeClient(new Uri(Settings.Default.InforoomOnline_Tests_localhost_InforoomOnlineService + "?wsdl"),
-				                           MetadataExchangeClientMode.HttpGet);
+										   MetadataExchangeClientMode.HttpGet);
 			metaTransfer.ResolveMetadataReferences = true;
 			var otherDocs = metaTransfer.GetMetadata();
 			Assert.That(otherDocs.MetadataSections.Count, Is.GreaterThan(0));
@@ -54,7 +63,9 @@ namespace InforoomOnline.Tests
 		{
 			try
 			{
-				SecurityRepositoryFixture.DeleteAllPermissions("kvasov");
+				user.AssignedPermissions.Clear();
+				user.Save();
+
 				service.GetPriceList(new[] { "*" });
 				Assert.Fail("Должны были завалиться");
 			}
@@ -105,11 +116,5 @@ namespace InforoomOnline.Tests
 			var lastUpdate = LogRepositoryFixture.GetLastAccessTime("kvasov", "IOLTime");
 			Assert.That(begin - lastUpdate, Is.LessThan(TimeSpan.FromSeconds(10)));
 		}
-
-		[Test]
-		public void Every_request_that_work_more_than_30_seconds_should_be_logged()
-		{
-			//service.GetOffers()
-		}
-    }
+	}
 }
