@@ -156,7 +156,7 @@ select	p.FirmCode SupplierId,
 		limit 1) as Phone,
 		'' as Address
 from prices p
-	join Future.Suppliers s on p.firmcode = s.Id
+	join Customers.Suppliers s on p.firmcode = s.Id
 		join usersettings.regionaldata rd on rd.firmcode = s.Id and rd.regioncode = p.regioncode")
 						.AddInCriteria("s.Name", firmName)
 						.AddOrder("s.Name")
