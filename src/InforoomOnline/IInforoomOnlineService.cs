@@ -24,5 +24,8 @@ namespace InforoomOnline
 
 		[OperationContract, FaultContract(typeof(DoNotHavePermissionFault))]
 		DataSet PostOrder(long[] offerId, Int32[] quantity, string[] message, uint addressId);
+
+		[OperationContract, FaultContract(typeof(DoNotHavePermissionFault))]
+		DataSet GetMinReqSettings();
 	}
 }

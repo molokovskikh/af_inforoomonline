@@ -161,6 +161,13 @@ namespace InforoomOnline.Tests
 		}
 
 		[Test]
+		public void GetMinReqSettings()
+		{
+			var settings = service.GetMinReqSettings();
+			Assert.That(settings.Tables[0].Columns.Contains("MinReq"), Is.True);
+		}
+
+		[Test]
 		public void All_methods_must_be_marked_with_fault_contract_attribute()
 		{
 			foreach(var method in typeof(IInforoomOnlineService).GetMethods())

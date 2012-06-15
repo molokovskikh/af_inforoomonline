@@ -166,6 +166,35 @@ from prices p
 			});
 		}
 
+		public DataSet GetMinReqSettings()
+		{
+			return With.Connection(c => {
+				var helper = new MySqlHelper(c);
+				using (GetPrices(c))
+				{
+					return SqlBuilder
+						.WithCommandText(@"
+select a.Address,
+	p.PriceCode,
+	p.RegionCode,
+	ai.ControlMinReq,
+	if(ai.MinReq > 0, ai.MinReq, p.MinReq) as MinReq
+from (Usersettings.Prices p, Customers.Users u)
+join Customers.Addresses a on a.ClientId = u.ClientId
+join Customers.Intersection i on i.PriceId = p.PriceCode
+	and i.RegionId = p.RegionCode
+	and i.ClientId = u.ClientId
+	and a.LegalEntityId = i.LegalEntityId
+join Customers.AddressIntersection ai on ai.IntersectionId = i.Id and a.Id = ai.AddressId")
+						.AddCriteria("u.Id = ?UserId")
+						.AddOrder("a.Address")
+						.ToCommand(helper)
+						.AddParameter("userId", ServiceContext.User.Id)
+						.Fill();
+				}
+			});
+		}
+
 		public DataSet GetNamesFromCatalog(string[] name, string[] form, bool offerOnly, int limit, int selStart)
 		{
 			DataSet result = null;
