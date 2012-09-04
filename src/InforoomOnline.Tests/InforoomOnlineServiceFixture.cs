@@ -25,12 +25,12 @@ namespace InforoomOnline.Tests
 		[Test]
 		public void GetNameFromCatalog()
 		{
-			LogDataSet(service.GetNamesFromCatalog(new string[0], new string[0], false, 100, 0));
-			LogDataSet(service.GetNamesFromCatalog(new[] {"*Тест*"}, new string[0], false, 100, 0));
-			LogDataSet(service.GetNamesFromCatalog(new string[0], new[] {"*Тест*"}, false, 100, 0));
-			LogDataSet(service.GetNamesFromCatalog(new string[0], new string[0], true, 100, 0));
-			LogDataSet(service.GetNamesFromCatalog(new[] {"*Тест*"}, new string[0], true, 100, 0));
-			LogDataSet(service.GetNamesFromCatalog(new string[0], new[] {"*Тест*"}, true, 100, 0));
+			service.GetNamesFromCatalog(new string[0], new string[0], false, 100, 0);
+			service.GetNamesFromCatalog(new[] {"*Тест*"}, new string[0], false, 100, 0);
+			service.GetNamesFromCatalog(new string[0], new[] {"*Тест*"}, false, 100, 0);
+			service.GetNamesFromCatalog(new string[0], new string[0], true, 100, 0);
+			service.GetNamesFromCatalog(new[] {"*Тест*"}, new string[0], true, 100, 0);
+			service.GetNamesFromCatalog(new string[0], new[] {"*Тест*"}, true, 100, 0);
 		}
 
 		[Test]
@@ -55,9 +55,6 @@ namespace InforoomOnline.Tests
 			Assert.That(columns.Contains("MinOrderCount"));
 			Assert.That(columns.Contains("RegistryCost"));
 			Assert.That(columns.Contains("SupplierId"));
-			
-
-			LogDataSet(data);
 		}
 
 		[Test]
@@ -65,9 +62,7 @@ namespace InforoomOnline.Tests
 		{
 			var priceList = service.GetPriceList(new string[0]);
 			Assert.That(priceList.Tables[0].Columns.Contains("SupplierId"));
-			LogDataSet(priceList);
-
-			LogDataSet(service.GetPriceList(new[] {"%а%"}));
+			service.GetPriceList(new[] {"%а%"});
 		}
 
 		[Test]
@@ -127,26 +122,6 @@ namespace InforoomOnline.Tests
 				}
 
 				Assert.That(finded, String.Format("Метод {0} не содержит атрибута FaultContract с типом NotHavePermissionException", method.Name));
-			}
-		}
-
-		public static void LogDataSet(DataSet dataSet)
-		{
-			foreach (DataTable dataTable in dataSet.Tables)
-			{
-				Console.WriteLine("<table>");
-				foreach (DataRow dataRow in dataTable.Rows)
-				{
-					Console.WriteLine("\t<row>");
-					Console.Write("\t");
-					foreach (DataColumn column in dataTable.Columns)
-					{
-						Console.Write(dataRow[column] + " ");
-					}
-					Console.WriteLine();
-					Console.WriteLine("\t</row>");
-				}
-				Console.WriteLine("</table>");
 			}
 		}
 	}
