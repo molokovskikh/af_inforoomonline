@@ -13,7 +13,30 @@ using With=Common.MySql.With;
 
 namespace InforoomOnline
 {
-	public class InforoomOnlineService : IInforoomOnlineService
+	public class BaseService
+	{
+		public User User
+		{
+			get { return ServiceContext.User; }
+		}
+
+		protected IDisposable GetPrices(MySqlConnection connection)
+		{
+			return StorageProcedures.GetPrices(connection, User.Id);
+		}
+
+		protected IDisposable GetOffers(MySqlConnection connection)
+		{
+			return StorageProcedures.GetOffers(connection, User.Id);
+		}
+
+		protected IDisposable GetActivePrices(MySqlConnection connection)
+		{
+			return StorageProcedures.GetActivePrices(connection, User.Id);
+		}
+	}
+
+	public class InforoomOnlineService : BaseService, IInforoomOnlineService
 	{
 		private IOfferRepository _offerRepository;
 		private IRepository<Order> _orderRepository;
@@ -24,21 +47,6 @@ namespace InforoomOnline
 			_orderRepository = orderRepository;
 			_orderRulesRepository = orderRulesRepository;
 			_offerRepository = offerRepository;
-		}
-
-		private IDisposable GetPrices(MySqlConnection connection)
-		{
-			return StorageProcedures.FutureGetPrices(connection, ServiceContext.User.Id);
-		}
-
-		private IDisposable GetOffers(MySqlConnection connection)
-		{
-			return StorageProcedures.FutureGetOffers(connection, ServiceContext.User.Id);
-		}
-
-		private IDisposable GetActivePrices(MySqlConnection connection)
-		{
-			return StorageProcedures.FutureGetActivePrices(connection, ServiceContext.User.Id);
 		}
 
 		public DataSet GetOffers(string[] rangeField,
