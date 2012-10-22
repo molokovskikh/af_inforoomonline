@@ -87,7 +87,7 @@ namespace InforoomOnline
 				if (rangeField != null
 					&& (rangeValue == null
 						|| rangeField.Length != rangeValue.Length))
-					throw new Exception("Количество полей для фильтрации не совпадает с количеством значение по которым производится фильтрация");
+					throw new Exception("РљРѕР»РёС‡РµСЃС‚РІРѕ РїРѕР»РµР№ РґР»СЏ С„РёР»СЊС‚СЂР°С†РёРё РЅРµ СЃРѕРІРїР°РґР°РµС‚ СЃ РєРѕР»РёС‡РµСЃС‚РІРѕРј Р·РЅР°С‡РµРЅРёРµ РїРѕ РєРѕС‚РѕСЂС‹Рј РїСЂРѕРёР·РІРѕРґРёС‚СЃСЏ С„РёР»СЊС‚СЂР°С†РёСЏ");
 
 				using (GetOffers(c))
 				{
@@ -216,8 +216,8 @@ join Customers.AddressIntersection ai on ai.IntersectionId = i.Id and a.Id = ai.
 						builder =
 							SqlBuilder.WithCommandText(
 								@"
-SELECT	distinct c.id as FullCode, 
-		cn.name, 
+SELECT	distinct c.id as FullCode,
+		cn.name,
 		cf.form
 FROM Catalogs.Catalog c
 	JOIN Catalogs.CatalogNames cn on cn.id = c.nameid
@@ -231,10 +231,10 @@ FROM Catalogs.Catalog c
 						builder =
 							SqlBuilder.WithCommandText(
 								@"
-SELECT	c.id as FullCode,  
-		cn.name, 
+SELECT	c.id as FullCode,
+		cn.name,
 		cf.form
-FROM Catalogs.Catalog c 
+FROM Catalogs.Catalog c
 	JOIN Catalogs.CatalogNames cn on cn.id = c.nameid
 	JOIN Catalogs.CatalogForms cf on cf.id = c.formid");
 					}
@@ -271,7 +271,7 @@ FROM Catalogs.Catalog c
 				orderRules.Strict = true;
 
 				var offers = _offerRepository.GetByIds(user, offerId.Select(v => (ulong)v));
-			
+
 				for(var i = 0; i < offerId.Length; i++)
 				{
 					var id = (ulong)offerId[i];
@@ -328,7 +328,7 @@ FROM Catalogs.Catalog c
 
 			foreach (var fieldName in fieldsToValidate)
 				if (!mapping.ContainsKey(fieldName))
-					throw new Exception(String.Format("Не найдено сопоставление для поля {0}", fieldName));
+					throw new Exception(String.Format("РќРµ РЅР°Р№РґРµРЅРѕ СЃРѕРїРѕСЃС‚Р°РІР»РµРЅРёРµ РґР»СЏ РїРѕР»СЏ {0}", fieldName));
 		}
 
 		private static void ValidateSortDirection(IEnumerable<string> sortDirections)
@@ -339,7 +339,7 @@ FROM Catalogs.Catalog c
 			foreach (var sortDirection in sortDirections)
 				if (String.Compare(sortDirection, "asc", true) != 0
 					&& String.Compare(sortDirection, "desc", true) != 0)
-					throw new Exception(String.Format("Не верный порядок сортировки {0}", sortDirection));
+					throw new Exception(String.Format("РќРµ РІРµСЂРЅС‹Р№ РїРѕСЂСЏРґРѕРє СЃРѕСЂС‚РёСЂРѕРІРєРё {0}", sortDirection));
 		}
 	}
 }

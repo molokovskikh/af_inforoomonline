@@ -26,11 +26,11 @@ namespace InforoomOnline.Tests
 		public void GetNameFromCatalog()
 		{
 			service.GetNamesFromCatalog(new string[0], new string[0], false, 100, 0);
-			service.GetNamesFromCatalog(new[] {"*Тест*"}, new string[0], false, 100, 0);
-			service.GetNamesFromCatalog(new string[0], new[] {"*Тест*"}, false, 100, 0);
+			service.GetNamesFromCatalog(new[] {"*РўРµСЃС‚*"}, new string[0], false, 100, 0);
+			service.GetNamesFromCatalog(new string[0], new[] {"*РўРµСЃС‚*"}, false, 100, 0);
 			service.GetNamesFromCatalog(new string[0], new string[0], true, 100, 0);
-			service.GetNamesFromCatalog(new[] {"*Тест*"}, new string[0], true, 100, 0);
-			service.GetNamesFromCatalog(new string[0], new[] {"*Тест*"}, true, 100, 0);
+			service.GetNamesFromCatalog(new[] {"*РўРµСЃС‚*"}, new string[0], true, 100, 0);
+			service.GetNamesFromCatalog(new string[0], new[] {"*РўРµСЃС‚*"}, true, 100, 0);
 		}
 
 		[Test]
@@ -62,19 +62,19 @@ namespace InforoomOnline.Tests
 		{
 			var priceList = service.GetPriceList(new string[0]);
 			Assert.That(priceList.Tables[0].Columns.Contains("SupplierId"));
-			service.GetPriceList(new[] {"%а%"});
+			service.GetPriceList(new[] {"%Р°%"});
 		}
 
 		[Test]
 		public void PostOrder()
 		{
-			Assert.That(client.Addresses.Count, Is.EqualTo(2), "для того что бы тест удался адресов должно быть два");
+			Assert.That(client.Addresses.Count, Is.EqualTo(2), "РґР»СЏ С‚РѕРіРѕ С‡С‚Рѕ Р±С‹ С‚РµСЃС‚ СѓРґР°Р»СЃСЏ Р°РґСЂРµСЃРѕРІ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РґРІР°");
 			var offerRepository = IoC.Resolve<IOfferRepository>();
 			var orderRepository = IoC.Resolve<IRepository<Order>>();
 
 			var begin = DateTime.Now;
-			var data = service.GetOffers(Array("name"), Array("*папа*"), false, Empty, Empty, 100, 0);
-			Assert.That(data.Tables[0].Rows.Count, Is.GreaterThan(0), "не нашли предложений");
+			var data = service.GetOffers(Array("name"), Array("*РїР°РїР°*"), false, Empty, Empty, 100, 0);
+			Assert.That(data.Tables[0].Rows.Count, Is.GreaterThan(0), "РЅРµ РЅР°С€Р»Рё РїСЂРµРґР»РѕР¶РµРЅРёР№");
 			var row = data.Tables[0].Rows[0];
 			var coreId = Convert.ToInt64(row["OfferId"]);
 			var core = TestCore.Find((ulong)coreId);
@@ -84,7 +84,7 @@ namespace InforoomOnline.Tests
 
 			var result = service.PostOrder(Array(coreId),
 											Array(50),
-											Array("это тестовый заказ"),
+											Array("СЌС‚Рѕ С‚РµСЃС‚РѕРІС‹Р№ Р·Р°РєР°Р·"),
 											address.Id);
 
 			Assert.That(result.Tables[0].Rows[0]["OfferId"], Is.EqualTo(coreId));
@@ -121,7 +121,7 @@ namespace InforoomOnline.Tests
 						break;
 				}
 
-				Assert.That(finded, String.Format("Метод {0} не содержит атрибута FaultContract с типом NotHavePermissionException", method.Name));
+				Assert.That(finded, String.Format("РњРµС‚РѕРґ {0} РЅРµ СЃРѕРґРµСЂР¶РёС‚ Р°С‚СЂРёР±СѓС‚Р° FaultContract СЃ С‚РёРїРѕРј NotHavePermissionException", method.Name));
 			}
 		}
 	}

@@ -18,7 +18,7 @@ namespace InforoomOnline
 			}
 			catch(Exception ex)
 			{
-				_log.Error("Ошибка в сервисе InforoomOnline", ex);
+				_log.Error("РћС€РёР±РєР° РІ СЃРµСЂРІРёСЃРµ InforoomOnline", ex);
 				throw;
 			}
 		}
