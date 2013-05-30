@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -9,7 +9,7 @@ using Common.Service;
 using Common.Tools;
 using MySql.Data.MySqlClient;
 using MySqlHelper = Common.MySql.MySqlHelper;
-using With=Common.MySql.With;
+using With = Common.MySql.With;
 
 namespace InforoomOnline
 {
@@ -50,32 +50,32 @@ namespace InforoomOnline
 		}
 
 		public DataSet GetOffers(string[] rangeField,
-								 string[] rangeValue,
-								 bool newEar,
-								 string[] sortField,
-								 string[] sortOrder,
-								 int limit,
-								 int selStart)
+			string[] rangeValue,
+			bool newEar,
+			string[] sortField,
+			string[] sortOrder,
+			int limit,
+			int selStart)
 		{
 			return With.Connection(c => {
 				var helper = new MySqlHelper(c);
 				var columnNameMapping = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) {
-					{"offerid", "offers.Id"},
-					{"pricecode", "offers.PriceCode"},
-					{"fullcode", "p.CatalogId"},
-					{"name", "s.synonym"},
-					{"crname", "sfc.synonym"},
-					{"code", "c.Code"},
-					{"codecr", "c.CodeCr"},
-					{"unit", "c.Unit"},
-					{"volume", "c.Volume"},
-					{"quantity", "c.Quantity"},
-					{"note", "c.Note"},
-					{"period", "c.Period"},
-					{"doc", "c.Doc"},
-					{"junk", "c.Junk"},
-					{"cost", "offers.Cost"},
-					{"SupplierId", "ap.FirmCode"},
+					{ "offerid", "offers.Id" },
+					{ "pricecode", "offers.PriceCode" },
+					{ "fullcode", "p.CatalogId" },
+					{ "name", "s.synonym" },
+					{ "crname", "sfc.synonym" },
+					{ "code", "c.Code" },
+					{ "codecr", "c.CodeCr" },
+					{ "unit", "c.Unit" },
+					{ "volume", "c.Volume" },
+					{ "quantity", "c.Quantity" },
+					{ "note", "c.Note" },
+					{ "period", "c.Period" },
+					{ "doc", "c.Doc" },
+					{ "junk", "c.Junk" },
+					{ "cost", "offers.Cost" },
+					{ "SupplierId", "ap.FirmCode" },
 				};
 
 				ValidateFieldNames(columnNameMapping, rangeField);
@@ -89,8 +89,7 @@ namespace InforoomOnline
 						|| rangeField.Length != rangeValue.Length))
 					throw new Exception("Количество полей для фильтрации не совпадает с количеством значение по которым производится фильтрация");
 
-				using (GetOffers(c))
-				{
+				using (GetOffers(c)) {
 					var builder = SqlBuilder
 						.WithCommandText(@"
 SELECT	offers.Id as OfferId,
@@ -132,16 +131,15 @@ JOIN farm.core0 as c on c.id = offers.id
 						.Limit(limit, selStart)
 						.ToCommand(helper)
 						.Fill();
-					}
-				});
+				}
+			});
 		}
 
 		public DataSet GetPriceList(string[] firmName)
 		{
 			return With.Connection(c => {
 				var helper = new MySqlHelper(c);
-				using (GetPrices(c))
-				{
+				using (GetPrices(c)) {
 					return SqlBuilder
 						.WithCommandText(@"
 select	p.FirmCode SupplierId,
@@ -178,8 +176,7 @@ from prices p
 		{
 			return With.Connection(c => {
 				var helper = new MySqlHelper(c);
-				using (GetPrices(c))
-				{
+				using (GetPrices(c)) {
 					return SqlBuilder
 						.WithCommandText(@"
 select a.Address,
@@ -209,10 +206,8 @@ join Customers.AddressIntersection ai on ai.IntersectionId = i.Id and a.Id = ai.
 			With.Connection(c => {
 				var helper = new MySqlHelper(c);
 				SqlBuilder builder;
-				using (GetActivePrices(c))
-				{
-					if (offerOnly)
-					{
+				using (GetActivePrices(c)) {
+					if (offerOnly) {
 						builder =
 							SqlBuilder.WithCommandText(
 								@"
@@ -226,8 +221,7 @@ FROM Catalogs.Catalog c
 	JOIN Farm.Core0 c0 on c0.ProductId = p.Id
 		JOIN activeprices ap on ap.PriceCode = c0.PriceCode");
 					}
-					else
-					{
+					else {
 						builder =
 							SqlBuilder.WithCommandText(
 								@"
@@ -253,15 +247,13 @@ FROM Catalogs.Catalog c
 
 		public DataSet PostOrder(long[] offerId, int[] quantity, string[] message, uint addressId)
 		{
-
 			var toResult = new DataSet();
 			toResult.Tables.Add();
 			toResult.Tables[0].Columns.Add("OfferId", typeof(long));
 			toResult.Tables[0].Columns.Add("Posted", typeof(bool));
 			var orders = new List<Order>();
 
-			using(new UnitOfWork())
-			{
+			using (new UnitOfWork()) {
 				var session = UnitOfWork.Current.CurrentSession;
 
 				var user = ServiceContext.User;
@@ -272,33 +264,28 @@ FROM Catalogs.Catalog c
 
 				var offers = _offerRepository.GetByIds(user, offerId.Select(v => (ulong)v));
 
-				for(var i = 0; i < offerId.Length; i++)
-				{
+				for (var i = 0; i < offerId.Length; i++) {
 					var id = (ulong)offerId[i];
 					var row = toResult.Tables[0].NewRow();
 					toResult.Tables[0].Rows.Add(row);
 					row["OfferId"] = offerId[i];
 					var offer = offers.FirstOrDefault(o => o.Id.CoreId == id);
-					if (offer == null)
-					{
+					if (offer == null) {
 						row["Posted"] = false;
 						continue;
 					}
 					row["Posted"] = true;
 					var order = orders.FirstOrDefault(o => o.PriceList.PriceCode == offer.PriceList.Id.Price.PriceCode);
-					if (order == null)
-					{
+					if (order == null) {
 						order = new Order(offer.PriceList, user, address, orderRules);
 						order.ClientAddition = message[i];
 						orders.Add(order);
 					}
 
-					order.AddOrderItem(offer, (uint) quantity[i]);
+					order.AddOrderItem(offer, (uint)quantity[i]);
 				}
 			}
-			Common.Models.With.Transaction(() => {
-				orders.Each(_orderRepository.Save);
-			});
+			Common.Models.With.Transaction(() => { orders.Each(_orderRepository.Save); });
 
 			return toResult;
 		}
@@ -307,10 +294,8 @@ FROM Catalogs.Catalog c
 		{
 			var result = new Dictionary<string, List<string>>();
 			var i = 0;
-			if (fields != null)
-			{
-				foreach (var field in fields)
-				{
+			if (fields != null) {
+				foreach (var field in fields) {
 					if (!result.ContainsKey(field.ToLower()))
 						result.Add(field.ToLower(), new List<string>());
 					result[field.ToLower()].Add(values[i]);
@@ -321,7 +306,7 @@ FROM Catalogs.Catalog c
 		}
 
 		private static void ValidateFieldNames(IDictionary<string, string> mapping,
-											   IEnumerable<string> fieldsToValidate)
+			IEnumerable<string> fieldsToValidate)
 		{
 			if (fieldsToValidate == null)
 				return;

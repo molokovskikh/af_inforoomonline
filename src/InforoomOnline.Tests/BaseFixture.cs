@@ -45,12 +45,12 @@ namespace InforoomOnline.Tests
 			container.Kernel.AddComponentInstance<ISessionFactoryHolder>(holder);
 			IoC.Initialize(container);
 			IoC.Container.Register(
-				Component.For<IInforoomOnlineService>().ImplementedBy<InforoomOnlineService>().Interceptors(
-					InterceptorReference.ForType<ContextLoaderInterceptor>()
-					).Anywhere,
+				Component.For<IInforoomOnlineService>()
+					.ImplementedBy<InforoomOnlineService>()
+					.Interceptors(InterceptorReference.ForType<ContextLoaderInterceptor>())
+					.Anywhere,
 				Component.For<ContextLoaderInterceptor>(),
-				Component.For<IClientLoader>().ImplementedBy<ClientLoader>()
-				);
+				Component.For<IClientLoader>().ImplementedBy<ClientLoader>());
 
 			service = IoC.Resolve<IInforoomOnlineService>();
 		}

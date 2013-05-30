@@ -9,12 +9,12 @@ namespace InforoomOnline
 	public interface IInforoomOnlineService
 	{
 		[OperationContract, FaultContract(typeof(DoNotHavePermissionFault)), OfferRowCalculator("FullCode")]
-		DataSet GetOffers(string[] rangeField, 
-						  string[] rangeValue, 
-						  bool newEar, 
-						  string[] sortField, 
-						  string[] sortOrder,
-		                  int limit, int selStart);
+		DataSet GetOffers(string[] rangeField,
+			string[] rangeValue,
+			bool newEar,
+			string[] sortField,
+			string[] sortOrder,
+			int limit, int selStart);
 
 		[OperationContract, FaultContract(typeof(DoNotHavePermissionFault)), RowCalculator]
 		DataSet GetPriceList(string[] firmName);

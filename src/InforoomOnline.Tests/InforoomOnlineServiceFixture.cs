@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Data;
 using System.Linq;
 using System.ServiceModel;
@@ -8,7 +8,7 @@ using Common.Models.Repositories;
 using Common.Service;
 using NUnit.Framework;
 using Test.Support;
-using Order=Common.Models.Order;
+using Order = Common.Models.Order;
 
 namespace InforoomOnline.Tests
 {
@@ -26,18 +26,18 @@ namespace InforoomOnline.Tests
 		public void GetNameFromCatalog()
 		{
 			service.GetNamesFromCatalog(new string[0], new string[0], false, 100, 0);
-			service.GetNamesFromCatalog(new[] {"*Тест*"}, new string[0], false, 100, 0);
-			service.GetNamesFromCatalog(new string[0], new[] {"*Тест*"}, false, 100, 0);
+			service.GetNamesFromCatalog(new[] { "*Тест*" }, new string[0], false, 100, 0);
+			service.GetNamesFromCatalog(new string[0], new[] { "*Тест*" }, false, 100, 0);
 			service.GetNamesFromCatalog(new string[0], new string[0], true, 100, 0);
-			service.GetNamesFromCatalog(new[] {"*Тест*"}, new string[0], true, 100, 0);
-			service.GetNamesFromCatalog(new string[0], new[] {"*Тест*"}, true, 100, 0);
+			service.GetNamesFromCatalog(new[] { "*Тест*" }, new string[0], true, 100, 0);
+			service.GetNamesFromCatalog(new string[0], new[] { "*Тест*" }, true, 100, 0);
 		}
 
 		[Test]
 		public void Get_offers_with_filter_by_supplier_id()
 		{
 			var priceId = user.GetActivePricesList().Where(p => p.PositionCount > 100).First().Id.PriceId;
-			var data = service.GetOffers(new[] {"SupplierId"}, new[] {priceId.ToString()}, false, null, null, 100, 0);
+			var data = service.GetOffers(new[] { "SupplierId" }, new[] { priceId.ToString() }, false, null, null, 100, 0);
 			Assert.That(data.Tables[0].Rows.Count, Is.GreaterThan(0));
 		}
 
@@ -45,7 +45,7 @@ namespace InforoomOnline.Tests
 		public void GetOffers()
 		{
 			var data = service.GetOffers(null, null, false,
-											 new string[0], new string[0], 100, 0);
+				new string[0], new string[0], 100, 0);
 
 			var table = data.Tables[0];
 			Assert.That(table.Rows.Count, Is.GreaterThan(0));
@@ -62,7 +62,7 @@ namespace InforoomOnline.Tests
 		{
 			var priceList = service.GetPriceList(new string[0]);
 			Assert.That(priceList.Tables[0].Columns.Contains("SupplierId"));
-			service.GetPriceList(new[] {"%а%"});
+			service.GetPriceList(new[] { "%а%" });
 		}
 
 		[Test]
@@ -83,15 +83,15 @@ namespace InforoomOnline.Tests
 			scope.Dispose();
 
 			var result = service.PostOrder(Array(coreId),
-											Array(50),
-											Array("это тестовый заказ"),
-											address.Id);
+				Array(50),
+				Array("это тестовый заказ"),
+				address.Id);
 
 			Assert.That(result.Tables[0].Rows[0]["OfferId"], Is.EqualTo(coreId));
 			Assert.That(result.Tables[0].Rows[0]["Posted"], Is.EqualTo(true));
 
 			scope = new SessionScope();
-			var offer = offerRepository.GetById(new User {Id = user.Id}, (ulong)coreId);
+			var offer = offerRepository.GetById(new User { Id = user.Id }, (ulong)coreId);
 			var order = TestOrder.Queryable.Single(o => o.Client == client);
 			Assert.That(offer.MinOrderCount, Is.EqualTo(50));
 			Assert.That(order.Address.Id, Is.EqualTo(address.Id));
@@ -111,12 +111,10 @@ namespace InforoomOnline.Tests
 		[Test]
 		public void All_methods_must_be_marked_with_fault_contract_attribute()
 		{
-			foreach(var method in typeof(IInforoomOnlineService).GetMethods())
-			{
+			foreach (var method in typeof(IInforoomOnlineService).GetMethods()) {
 				var finded = false;
-				foreach (var attribute in method.GetCustomAttributes(typeof(FaultContractAttribute), true))
-				{
-					finded = ((FaultContractAttribute) attribute).DetailType == typeof (DoNotHavePermissionFault);
+				foreach (var attribute in method.GetCustomAttributes(typeof(FaultContractAttribute), true)) {
+					finded = ((FaultContractAttribute)attribute).DetailType == typeof(DoNotHavePermissionFault);
 					if (finded)
 						break;
 				}

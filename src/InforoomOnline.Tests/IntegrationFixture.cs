@@ -44,7 +44,7 @@ namespace InforoomOnline.Tests
 		{
 			var offers = service.GetOffers(null, null, false, true, null, null, 1000, true, 0, true);
 			Assert.That(offers.Tables.Count,
-						Is.EqualTo(1));
+				Is.EqualTo(1));
 		}
 
 		[Test]
@@ -52,7 +52,7 @@ namespace InforoomOnline.Tests
 		{
 			var metaTransfer =
 				new MetadataExchangeClient(new Uri(Settings.Default.InforoomOnline_Tests_localhost_InforoomOnlineService + "?wsdl"),
-										   MetadataExchangeClientMode.HttpGet);
+					MetadataExchangeClientMode.HttpGet);
 			metaTransfer.ResolveMetadataReferences = true;
 			var otherDocs = metaTransfer.GetMetadata();
 			Assert.That(otherDocs.MetadataSections.Count, Is.GreaterThan(0));
@@ -61,16 +61,14 @@ namespace InforoomOnline.Tests
 		[Test]
 		public void User_cannot_access_to_service_without_IOL_permission()
 		{
-			try
-			{
+			try {
 				user.AssignedPermissions.Clear();
 				user.Save();
 
 				service.GetPriceList(new[] { "*" });
 				Assert.Fail("Должны были завалиться");
 			}
-			catch (SoapException e)
-			{
+			catch (SoapException e) {
 				Assert.That(e.Message, Is.EqualTo("Нет права доступа"));
 			}
 		}
@@ -85,8 +83,7 @@ namespace InforoomOnline.Tests
 		public void Every_message_call_should_be_logged()
 		{
 			var begin = DateTime.Now;
-			using (var session = sessionFactoryHolder.SessionFactory.OpenSession())
-			{
+			using (var session = sessionFactoryHolder.SessionFactory.OpenSession()) {
 				var logs = session.CreateCriteria(typeof(ServiceLogEntity))
 					.Add(Expression.Ge("LogTime", new DateTime(begin.Year, begin.Month, begin.Day)))
 					.List<ServiceLogEntity>();
@@ -97,9 +94,8 @@ namespace InforoomOnline.Tests
 
 			service.GetPriceList(new[] { "*" });
 
-			using (var session = sessionFactoryHolder.SessionFactory.OpenSession())
-			{
-				var log = session.CreateCriteria(typeof (ServiceLogEntity))
+			using (var session = sessionFactoryHolder.SessionFactory.OpenSession()) {
+				var log = session.CreateCriteria(typeof(ServiceLogEntity))
 					.Add(Expression.Ge("LogTime", begin))
 					.UniqueResult<ServiceLogEntity>();
 
@@ -111,7 +107,7 @@ namespace InforoomOnline.Tests
 		public void On_every_method_call_last_access_time_should_be_update()
 		{
 			var begin = DateTime.Now;
-			service.GetPriceList(new[] {"*"});
+			service.GetPriceList(new[] { "*" });
 
 			var lastUpdate = LogRepositoryFixture.GetLastAccessTime("kvasov", "IOLTime");
 			Assert.That(begin - lastUpdate, Is.LessThan(TimeSpan.FromSeconds(10)));
