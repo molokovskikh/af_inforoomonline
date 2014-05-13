@@ -2,7 +2,8 @@
 
 Global(
 	Project : "InforoomOnline",
-	HumanReadableName : "Сервис для мониторинга рынка и формирования заказов в реальном времени"
+	HumanReadableName : "Сервис для мониторинга рынка и формирования заказов в реальном времени",
+	Config : { "db:seed" : {@Profile: @catalog} }
 )
 
 task @Build, [@WebBuild]
