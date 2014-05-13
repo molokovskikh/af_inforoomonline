@@ -68,9 +68,9 @@ namespace InforoomOnline.Tests
 		[Test]
 		public void PostOrder()
 		{
+			session.Transaction.Commit();
 			Assert.That(client.Addresses.Count, Is.EqualTo(2), "для того что бы тест удался адресов должно быть два");
 			var offerRepository = IoC.Resolve<IOfferRepository>();
-			session.Transaction.Commit();
 
 			var data = service.GetOffers(new[] { "name" }, new[] { "*" }, false, null, null, 100, 0);
 
@@ -126,14 +126,16 @@ namespace InforoomOnline.Tests
 			var supplier = TestSupplier.CreateNaked(session);
 			supplier.AddFullCore(session, product);
 			session.Save(supplier);
+
+			user.Client.MaintainIntersection(session);
 			session.Transaction.Commit();
 
 			var data = service.GetOffers(new[] { "fullcode" }, new[] { product.CatalogProduct.Id.ToString() }, false,
 				new string[0], new string[0], 100, 0);
 			Assert.That(data.Tables[0].Rows.Count, Is.GreaterThan(0),
-				"код каталожного товара {0}", product.CatalogProduct.Id);
+				"код каталожного товара {0} пользователь {1}", product.CatalogProduct.Id, user.Id);
 			Assert.That(data.Tables[0].Rows[0]["ClientCatalogId"], Is.EqualTo(clientCatalogId.ToString()),
-				"код каталожного товара {0}", product.CatalogProduct.Id);
+				"код каталожного товара {0} пользователь {1}", product.CatalogProduct.Id, user.Id);
 		}
 
 		[Test]
