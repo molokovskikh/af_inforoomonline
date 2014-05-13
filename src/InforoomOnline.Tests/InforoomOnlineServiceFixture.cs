@@ -6,8 +6,11 @@ using Castle.ActiveRecord;
 using Common.Models;
 using Common.Models.Repositories;
 using Common.Service;
+using Common.Tools;
+using NHibernate.Linq;
 using NUnit.Framework;
 using Test.Support;
+using Test.Support.Suppliers;
 using Order = Common.Models.Order;
 
 namespace InforoomOnline.Tests
@@ -15,16 +18,10 @@ namespace InforoomOnline.Tests
 	[TestFixture]
 	public class InforoomOnlineServiceFixture : BaseFixture
 	{
-		private string[] Empty;
-
-		public T[] Array<T>(params T[] items)
-		{
-			return items;
-		}
-
 		[Test]
 		public void GetNameFromCatalog()
 		{
+			session.Transaction.Commit();
 			service.GetNamesFromCatalog(new string[0], new string[0], false, 100, 0);
 			service.GetNamesFromCatalog(new[] { "*Тест*" }, new string[0], false, 100, 0);
 			service.GetNamesFromCatalog(new string[0], new[] { "*Тест*" }, false, 100, 0);
@@ -36,7 +33,8 @@ namespace InforoomOnline.Tests
 		[Test]
 		public void Get_offers_with_filter_by_supplier_id()
 		{
-			var priceId = user.GetActivePricesList().Where(p => p.PositionCount > 100).First().Id.PriceId;
+			session.Transaction.Commit();
+			var priceId = user.GetActivePricesNaked(session).First(p => p.PositionCount > 1).Price.Supplier.Id;
 			var data = service.GetOffers(new[] { "SupplierId" }, new[] { priceId.ToString() }, false, null, null, 100, 0);
 			Assert.That(data.Tables[0].Rows.Count, Is.GreaterThan(0));
 		}
@@ -44,6 +42,7 @@ namespace InforoomOnline.Tests
 		[Test]
 		public void GetOffers()
 		{
+			session.Transaction.Commit();
 			var data = service.GetOffers(null, null, false,
 				new string[0], new string[0], 100, 0);
 
@@ -60,6 +59,7 @@ namespace InforoomOnline.Tests
 		[Test]
 		public void GetPriceList()
 		{
+			session.Transaction.Commit();
 			var priceList = service.GetPriceList(new string[0]);
 			Assert.That(priceList.Tables[0].Columns.Contains("SupplierId"));
 			service.GetPriceList(new[] { "%а%" });
@@ -70,27 +70,27 @@ namespace InforoomOnline.Tests
 		{
 			Assert.That(client.Addresses.Count, Is.EqualTo(2), "для того что бы тест удался адресов должно быть два");
 			var offerRepository = IoC.Resolve<IOfferRepository>();
-			var orderRepository = IoC.Resolve<IRepository<Order>>();
+			session.Transaction.Commit();
 
-			var begin = DateTime.Now;
-			var data = service.GetOffers(Array("name"), Array("*папа*"), false, Empty, Empty, 100, 0);
+			var data = service.GetOffers(new[] { "name" }, new[] { "*" }, false, null, null, 100, 0);
+
+			session.Transaction.Begin();
 			Assert.That(data.Tables[0].Rows.Count, Is.GreaterThan(0), "не нашли предложений");
 			var row = data.Tables[0].Rows[0];
 			var coreId = Convert.ToInt64(row["OfferId"]);
 			var core = TestCore.Find((ulong)coreId);
 			core.MinOrderCount = 50;
-			core.Save();
-			scope.Dispose();
+			session.Save(core);
 
-			var result = service.PostOrder(Array(coreId),
-				Array(50),
-				Array("это тестовый заказ"),
+			session.Transaction.Commit();
+			var result = service.PostOrder(new[] { coreId },
+				new[] { 50 },
+				new[] { "это тестовый заказ" },
 				address.Id);
 
 			Assert.That(result.Tables[0].Rows[0]["OfferId"], Is.EqualTo(coreId));
 			Assert.That(result.Tables[0].Rows[0]["Posted"], Is.EqualTo(true));
 
-			scope = new SessionScope();
 			var offer = offerRepository.GetById(new User { Id = user.Id }, (ulong)coreId);
 			var order = TestOrder.Queryable.Single(o => o.Client == client);
 			Assert.That(offer.MinOrderCount, Is.EqualTo(50));
@@ -104,8 +104,36 @@ namespace InforoomOnline.Tests
 		[Test]
 		public void GetMinReqSettings()
 		{
+			session.Transaction.Commit();
 			var settings = service.GetMinReqSettings();
 			Assert.That(settings.Tables[0].Columns.Contains("MinReq"), Is.True);
+		}
+
+		[Test]
+		public void Map_catalog_id()
+		{
+			var clientCatalogId = Generator.Random().First();
+			var product = session.Query<TestProduct>().First();
+
+			var mapSupplier = TestSupplier.CreateNaked(session, TestRegion.Inforoom);
+			mapSupplier.Prices[0].PriceType = PriceType.Assortment;
+			var core = mapSupplier.AddCore(product);
+			core.Code = clientCatalogId.ToString();
+			session.Save(mapSupplier);
+
+			client.Settings.CatalogMapPrice = mapSupplier.Prices[0];
+
+			var supplier = TestSupplier.CreateNaked(session);
+			supplier.AddFullCore(session, product);
+			session.Save(supplier);
+			session.Transaction.Commit();
+
+			var data = service.GetOffers(new[] { "fullcode" }, new[] { product.CatalogProduct.Id.ToString() }, false,
+				new string[0], new string[0], 100, 0);
+			Assert.That(data.Tables[0].Rows.Count, Is.GreaterThan(0),
+				"код каталожного товара {0}", product.CatalogProduct.Id);
+			Assert.That(data.Tables[0].Rows[0]["ClientCatalogId"], Is.EqualTo(clientCatalogId.ToString()),
+				"код каталожного товара {0}", product.CatalogProduct.Id);
 		}
 
 		[Test]

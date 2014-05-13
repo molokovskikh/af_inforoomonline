@@ -8,6 +8,7 @@ using Common.MySql;
 using Common.Service;
 using Common.Tools;
 using MySql.Data.MySqlClient;
+using NHibernate;
 using MySqlHelper = Common.MySql.MySqlHelper;
 using With = Common.MySql.With;
 
@@ -15,6 +16,8 @@ namespace InforoomOnline
 {
 	public class BaseService
 	{
+		protected ISession Session;
+
 		public User User
 		{
 			get { return ServiceContext.User; }
@@ -57,6 +60,7 @@ namespace InforoomOnline
 			int limit,
 			int selStart)
 		{
+			var settings = Session.Load<OrderRules>(User.Client.Id);
 			return With.Connection(c => {
 				var helper = new MySqlHelper(c);
 				var columnNameMapping = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) {
@@ -112,15 +116,17 @@ SELECT	offers.Id as OfferId,
 	c.MinOrderCount,
 	max(cc.Cost) RegistryCost,
 	c.VitallyImportant,
-	offers.Cost
+	offers.Cost,
+	cl.Code as ClientCatalogId
 FROM core as offers
 JOIN farm.core0 as c on c.id = offers.id
-	JOIN farm.Synonym s on c.synonymcode = s.synonymcode
+	join farm.Synonym s on c.synonymcode = s.synonymcode
 	join usersettings.ActivePrices ap on ap.PriceCode = c.PriceCode
-	JOIN farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = c.synonymfirmcrcode
-	JOIN Catalogs.Products p on p.Id = c.ProductId
-	left join farm.Core0 rp on rp.PriceCode = 4863 and rp.ProductId = c.ProductId and rp.CodeFirmCr = c.CodeFirmCr
-	left join farm.CoreCosts cc on cc.Core_id = rp.id and cc.PC_CostCode = 8317");
+	left join farm.SynonymFirmCr sfc on sfc.SynonymFirmCrCode = c.synonymfirmcrcode
+	join Catalogs.Products p on p.Id = c.ProductId
+	left join farm.Core0 rp on rp.PriceCode = 4863 and rp.ProductId = c.ProductId and rp.CodeFirmCr <=> c.CodeFirmCr
+	left join farm.CoreCosts cc on cc.Core_id = rp.id and cc.PC_CostCode = 8317
+	left join farm.Core0 cl on cl.ProductId = c.ProductId and cl.CodeFirmCr <=> c.CodeFirmCr and cl.PriceCode = ?mapPriceId");
 
 					foreach (var pair in groupedValues)
 						builder.AddInCriteria(columnNameMapping[pair.Key], pair.Value);
@@ -130,6 +136,7 @@ JOIN farm.core0 as c on c.id = offers.id
 						.AddOrderMultiColumn(sortField, sortOrder)
 						.Limit(limit, selStart)
 						.ToCommand(helper)
+						.AddParameter("mapPriceId", settings.CatalogMapPriceId)
 						.Fill();
 				}
 			});

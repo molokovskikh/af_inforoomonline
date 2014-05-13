@@ -1,4 +1,4 @@
 output/
 packages/
 *.log
-src/*.prop*
+*.gen.*

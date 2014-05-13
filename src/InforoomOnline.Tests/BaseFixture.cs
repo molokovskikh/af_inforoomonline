@@ -12,10 +12,11 @@ using Common.Tools;
 using NHibernate.Mapping.Attributes;
 using NUnit.Framework;
 using Test.Support;
+using Test.Support.Suppliers;
 
 namespace InforoomOnline.Tests
 {
-	public class BaseFixture
+	public class BaseFixture : Test.Support.IntegrationFixture
 	{
 		protected TestClient client;
 		protected TestUser user;
@@ -26,12 +27,12 @@ namespace InforoomOnline.Tests
 		[SetUp]
 		public void Setup()
 		{
-			scope = new SessionScope();
-
-			client = TestClient.Create();
+			var supplier = TestSupplier.CreateNaked(session);
+			supplier.CreateSampleCore(session);
+			client = TestClient.CreateNaked(session);
 			address = client.CreateAddress();
 			user = client.Users.First();
-			address.Save();
+			session.Save(address);
 			ServiceContext.GetUserName = () => user.Login;
 
 			var container = new WindsorContainer();

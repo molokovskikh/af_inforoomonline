@@ -10,6 +10,7 @@ using Common.Service.Tests;
 using Common.Tools;
 using InforoomOnline.Tests.Properties;
 using NHibernate.Criterion;
+using NHibernate.Linq;
 using NHibernate.Mapping.Attributes;
 using NUnit.Framework;
 using Test.Support;
@@ -17,24 +18,28 @@ using Test.Support;
 namespace InforoomOnline.Tests
 {
 	[TestFixture]
-	public class IntegrationFixture
+	public class IntegrationFixture : Test.Support.IntegrationFixture
 	{
 		private localhost.InforoomOnlineService service;
 		private SessionFactoryHolder sessionFactoryHolder;
 		private TestUser user;
+		private string userName = "DebugUser";
 
 		[SetUp]
 		public void Setup()
 		{
 			service = new localhost.InforoomOnlineService();
-			using (new SessionScope()) {
-				user = TestUser.Queryable.First(u => u.Login == "kvasov");
-				if (!user.AssignedPermissions.Any(p => p.Shortcut == "IOL")) {
-					user.AssignedPermissions.Add(TestUserPermission.ByShortcut("IOL"));
-					user.Save();
-				}
+			user = session.Query<TestUser>().FirstOrDefault(u => u.Login == userName);
+			if (user == null) {
+				user = TestClient.CreateNaked(session).Users[0];
+				user.Login = "DebugUser";
+				session.Save(user);
 			}
-
+			else if (user.AssignedPermissions.Count == 0) {
+				user.AssignedPermissions.AddEach(session.Query<TestUserPermission>());
+				session.Save(user);
+			}
+			session.Transaction.Commit();
 			sessionFactoryHolder = new SessionFactoryHolder();
 			sessionFactoryHolder.Configuration.AddInputStream(HbmSerializer.Default.Serialize(Assembly.Load("Common.Service")));
 		}
@@ -62,8 +67,10 @@ namespace InforoomOnline.Tests
 		public void User_cannot_access_to_service_without_IOL_permission()
 		{
 			try {
+				session.Transaction.Begin();
 				user.AssignedPermissions.Clear();
-				user.Save();
+				session.Save(user);
+				session.Transaction.Commit();
 
 				service.GetPriceList(new[] { "*" });
 				Assert.Fail("Должны были завалиться");
@@ -109,7 +116,7 @@ namespace InforoomOnline.Tests
 			var begin = DateTime.Now;
 			service.GetPriceList(new[] { "*" });
 
-			var lastUpdate = LogRepositoryFixture.GetLastAccessTime("kvasov", "IOLTime");
+			var lastUpdate = LogRepositoryFixture.GetLastAccessTime(userName, "IOLTime");
 			Assert.That(begin - lastUpdate, Is.LessThan(TimeSpan.FromSeconds(10)));
 		}
 	}
