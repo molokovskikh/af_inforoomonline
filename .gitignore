@@ -2,3 +2,4 @@ output/
 packages/
 *.log
 *.gen.*
+var

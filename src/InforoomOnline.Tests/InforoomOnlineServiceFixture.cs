@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.ServiceModel;
@@ -151,6 +152,28 @@ namespace InforoomOnline.Tests
 
 				Assert.That(finded, String.Format("Метод {0} не содержит атрибута FaultContract с типом NotHavePermissionException", method.Name));
 			}
+		}
+
+		[Test]
+		public void Get_address()
+		{
+			session.Transaction.Commit();
+			var data = service.GetAddresses().Tables[0];
+			Assert.That(data.Rows.Count, Is.GreaterThan(0));
+		}
+
+		[Test]
+		public void Get_waybill()
+		{
+			var supplier = TestSupplier.CreateNaked(session);
+			var log = new TestDocumentLog(supplier, client);
+			session.Save(log);
+			log.CreateFile(ConfigurationManager.AppSettings["DocPath"], "test");
+			session.Transaction.Commit();
+			var data = service.GetWaybills(DateTime.Today.AddDays(-1), DateTime.Today.AddDays(1)).Tables[0];
+			Assert.That(data.Rows.Count, Is.GreaterThan(0));
+			var result = service.GetWaybill(Convert.ToUInt32(data.Rows[0]["Id"]));
+			Assert.That(result.Length, Is.GreaterThan(0));
 		}
 	}
 }

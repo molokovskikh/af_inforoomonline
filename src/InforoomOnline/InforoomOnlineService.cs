@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
+using System.IO;
 using System.Linq;
+using System.ServiceModel;
 using Common.Models;
 using Common.Models.Repositories;
 using Common.MySql;
 using Common.Service;
 using Common.Tools;
+using log4net;
 using MySql.Data.MySqlClient;
 using NHibernate;
 using MySqlHelper = Common.MySql.MySqlHelper;
@@ -41,6 +45,8 @@ namespace InforoomOnline
 
 	public class InforoomOnlineService : BaseService, IInforoomOnlineService
 	{
+		private ILog log = LogManager.GetLogger(typeof(InforoomOnlineService));
+
 		private IOfferRepository _offerRepository;
 		private IRepository<Order> _orderRepository;
 		private IRepository<OrderRules> _orderRulesRepository;
@@ -204,6 +210,67 @@ join Customers.AddressIntersection ai on ai.IntersectionId = i.Id and a.Id = ai.
 						.AddParameter("userId", ServiceContext.User.Id)
 						.Fill();
 				}
+			});
+		}
+
+		public DataSet GetWaybills(DateTime begin, DateTime end)
+		{
+			return With.Connection(c => {
+				return c.FillDataSet(@"
+select l.RowId as Id,
+	l.LogTime,
+	l.FirmCode as SupplierId,
+	l.AddressId,
+	l.DocumentType as DocType,
+	l.DocumentSize as DocSize,
+	l.FileName
+from Logs.Document_Logs l
+	join Customers.Addresses a on a.Id = l.AddressId
+		join Customers.UserAddresses ua on a.Id = ua.AddressId
+			join Customers.Users u on ua.UserId = u.Id and a.ClientId = u.ClientId
+where l.LogTime >= ?begin and l.LogTime <= ?end
+	and l.IsFake = 0
+	and a.Enabled = 1
+	and u.Id = ?userId", new { userId = User.Id, begin, end });
+			});
+		}
+
+		public Stream GetWaybill(uint id)
+		{
+			var data = With.Connection(c => c
+				.Read("select DocumentType, AddressId from Logs.Document_Logs where RowId = ?id", new { id })
+				.Select(r => new { docType = (DocType)Convert.ToUInt32(r["DocumentType"]), addressId = Convert.ToUInt32(r["addressId"]) })
+				.FirstOrDefault());
+			if (data == null) {
+				log.WarnFormat("Документ с номером {0} не найден", id);
+				throw new FaultException(String.Format("Документ с номером {0} не найден", id));
+			}
+			var docPath = ConfigurationManager.AppSettings["DocPath"];
+
+			var addresses = User.AvaliableAddresses.Where(a => a.Enabled && a.Client == User.Client).Select(a => a.Id);
+			if (!addresses.Contains(data.addressId)) {
+				log.WarnFormat("Попытка получить накладную {0} адреса доставки {1} доступа к которому у него нет", id, data.addressId);
+				throw new FaultException("Доступ запрещен");
+			}
+
+			string path = Path.Combine(docPath, data.addressId.ToString(), data.docType.ToString());
+			var file = Directory.GetFiles(path, String.Format("{0}_*", id)).FirstOrDefault();
+			if (String.IsNullOrEmpty(file)) {
+				log.WarnFormat("На найден файл накладной {0} по пути {1}\\{0}_*", id, path);
+				throw new FaultException("Файл не найден, файлы накладных хранятся за последнии 3 месяца.");
+			}
+			return File.OpenRead(file);
+		}
+
+		public DataSet GetAddresses()
+		{
+			return With.Connection(c => {
+				return c.FillDataSet(@"
+select a.Id, a.Address as Name
+from Customers.Users u
+	join Customers.UserAddresses ua on u.Id = ua.UserId
+		join Customers.Addresses a on ua.AddressId = a.Id and a.ClientId = u.ClientId
+where a.Enabled = 1 and u.Id = ?userId", new { userId = User.Id });
 			});
 		}
 

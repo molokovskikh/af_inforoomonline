@@ -1,6 +1,8 @@
 using System;
 using System.Data;
+using System.IO;
 using System.ServiceModel;
+using System.Web;
 using Common.Service;
 
 namespace InforoomOnline
@@ -27,5 +29,14 @@ namespace InforoomOnline
 
 		[OperationContract, FaultContract(typeof(DoNotHavePermissionFault))]
 		DataSet GetMinReqSettings();
+
+		[OperationContract, FaultContract(typeof(DoNotHavePermissionFault))]
+		DataSet GetWaybills(DateTime begin, DateTime end);
+
+		[OperationContract, FaultContract(typeof(DoNotHavePermissionFault))]
+		Stream GetWaybill(uint id);
+
+		[OperationContract, FaultContract(typeof(DoNotHavePermissionFault))]
+		DataSet GetAddresses();
 	}
 }
