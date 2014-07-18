@@ -11,13 +11,19 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>InforoomOnline.Tests</RootNamespace>
     <AssemblyName>InforoomOnline.Tests</AssemblyName>
-    <SccProjectName></SccProjectName>
-    <SccLocalPath></SccLocalPath>
-    <SccAuxPath></SccAuxPath>
-    <SccProvider></SccProvider>
-    <FileUpgradeFlags></FileUpgradeFlags>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation></UpgradeBackupLocation>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -141,6 +147,9 @@
     <None Include="Web References\localhost\InforoomOnlineService1.xsd" />
     <None Include="Web References\localhost\InforoomOnlineService2.xsd" />
     <None Include="Web References\localhost\InforoomOnlineService3.xsd" />
+    <None Include="Web References\localhost\InforoomOnlineService4.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Web References\localhost\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
@@ -171,8 +180,10 @@
       <UrlBehavior>Dynamic</UrlBehavior>
       <RelPath>Web References\localhost\</RelPath>
       <UpdateFromURL>http://localhost:54860/InforoomOnlineService.svc%3fwsdl</UpdateFromURL>
-      <ServiceLocationURL></ServiceLocationURL>
-      <CachedDynamicPropName></CachedDynamicPropName>
+      <ServiceLocationURL>
+      </ServiceLocationURL>
+      <CachedDynamicPropName>
+      </CachedDynamicPropName>
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>InforoomOnline_Tests_localhost_InforoomOnlineService</CachedSettingsPropName>
     </WebReferenceUrl>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:tns="http://tempuri.org/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" name="InforoomOnlineService" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+<wsdl:definitions xmlns:wsap="http://schemas.xmlsoap.org/ws/2004/08/addressing/policy" xmlns:wsa10="http://www.w3.org/2005/08/addressing" xmlns:tns="http://tempuri.org/" xmlns:msc="http://schemas.microsoft.com/ws/2005/12/wsdl/contract" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsx="http://schemas.xmlsoap.org/ws/2004/09/mex" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata" xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" name="InforoomOnlineService" targetNamespace="http://tempuri.org/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
   <wsp:Policy wsu:Id="BasicHttpBinding_IInforoomOnlineService_policy">
     <wsp:ExactlyOne>
       <wsp:All>
@@ -10,10 +10,11 @@
   <wsdl:types>
     <xsd:schema targetNamespace="http://tempuri.org/Imports">
       <xsd:import schemaLocation="http://localhost:54860/InforoomOnlineService.svc?xsd=xsd0" namespace="http://tempuri.org/" />
-      <xsd:import schemaLocation="http://localhost:54860/InforoomOnlineService.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/System" />
+      <xsd:import schemaLocation="http://localhost:54860/InforoomOnlineService.svc?xsd=xsd4" namespace="http://schemas.datacontract.org/2004/07/Common.Service" />
       <xsd:import schemaLocation="http://localhost:54860/InforoomOnlineService.svc?xsd=xsd1" namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
       <xsd:import schemaLocation="http://localhost:54860/InforoomOnlineService.svc?xsd=xsd2" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
       <xsd:import schemaLocation="http://localhost:54860/InforoomOnlineService.svc?xsd=xsd3" />
+      <xsd:import schemaLocation="http://localhost:54860/InforoomOnlineService.svc?xsd=xsd5" namespace="http://schemas.microsoft.com/Message" />
     </xsd:schema>
   </wsdl:types>
   <wsdl:message name="IInforoomOnlineService_GetOffers_InputMessage">
@@ -22,8 +23,8 @@
   <wsdl:message name="IInforoomOnlineService_GetOffers_OutputMessage">
     <wsdl:part name="parameters" element="tns:GetOffersResponse" />
   </wsdl:message>
-  <wsdl:message name="IInforoomOnlineService_GetOffers_ApplicationExceptionFault_FaultMessage">
-    <wsdl:part xmlns:q1="http://schemas.datacontract.org/2004/07/System" name="detail" element="q1:ApplicationException" />
+  <wsdl:message name="IInforoomOnlineService_GetOffers_DoNotHavePermissionFaultFault_FaultMessage">
+    <wsdl:part xmlns:q1="http://schemas.datacontract.org/2004/07/Common.Service" name="detail" element="q1:DoNotHavePermissionFault" />
   </wsdl:message>
   <wsdl:message name="IInforoomOnlineService_GetPriceList_InputMessage">
     <wsdl:part name="parameters" element="tns:GetPriceList" />
@@ -31,8 +32,8 @@
   <wsdl:message name="IInforoomOnlineService_GetPriceList_OutputMessage">
     <wsdl:part name="parameters" element="tns:GetPriceListResponse" />
   </wsdl:message>
-  <wsdl:message name="IInforoomOnlineService_GetPriceList_ApplicationExceptionFault_FaultMessage">
-    <wsdl:part xmlns:q2="http://schemas.datacontract.org/2004/07/System" name="detail" element="q2:ApplicationException" />
+  <wsdl:message name="IInforoomOnlineService_GetPriceList_DoNotHavePermissionFaultFault_FaultMessage">
+    <wsdl:part xmlns:q2="http://schemas.datacontract.org/2004/07/Common.Service" name="detail" element="q2:DoNotHavePermissionFault" />
   </wsdl:message>
   <wsdl:message name="IInforoomOnlineService_GetNamesFromCatalog_InputMessage">
     <wsdl:part name="parameters" element="tns:GetNamesFromCatalog" />
@@ -40,8 +41,8 @@
   <wsdl:message name="IInforoomOnlineService_GetNamesFromCatalog_OutputMessage">
     <wsdl:part name="parameters" element="tns:GetNamesFromCatalogResponse" />
   </wsdl:message>
-  <wsdl:message name="IInforoomOnlineService_GetNamesFromCatalog_ApplicationExceptionFault_FaultMessage">
-    <wsdl:part xmlns:q3="http://schemas.datacontract.org/2004/07/System" name="detail" element="q3:ApplicationException" />
+  <wsdl:message name="IInforoomOnlineService_GetNamesFromCatalog_DoNotHavePermissionFaultFault_FaultMessage">
+    <wsdl:part xmlns:q3="http://schemas.datacontract.org/2004/07/Common.Service" name="detail" element="q3:DoNotHavePermissionFault" />
   </wsdl:message>
   <wsdl:message name="IInforoomOnlineService_PostOrder_InputMessage">
     <wsdl:part name="parameters" element="tns:PostOrder" />
@@ -49,29 +50,85 @@
   <wsdl:message name="IInforoomOnlineService_PostOrder_OutputMessage">
     <wsdl:part name="parameters" element="tns:PostOrderResponse" />
   </wsdl:message>
-  <wsdl:message name="IInforoomOnlineService_PostOrder_ApplicationExceptionFault_FaultMessage">
-    <wsdl:part xmlns:q4="http://schemas.datacontract.org/2004/07/System" name="detail" element="q4:ApplicationException" />
+  <wsdl:message name="IInforoomOnlineService_PostOrder_DoNotHavePermissionFaultFault_FaultMessage">
+    <wsdl:part xmlns:q4="http://schemas.datacontract.org/2004/07/Common.Service" name="detail" element="q4:DoNotHavePermissionFault" />
+  </wsdl:message>
+  <wsdl:message name="IInforoomOnlineService_GetMinReqSettings_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetMinReqSettings" />
+  </wsdl:message>
+  <wsdl:message name="IInforoomOnlineService_GetMinReqSettings_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetMinReqSettingsResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInforoomOnlineService_GetMinReqSettings_DoNotHavePermissionFaultFault_FaultMessage">
+    <wsdl:part xmlns:q5="http://schemas.datacontract.org/2004/07/Common.Service" name="detail" element="q5:DoNotHavePermissionFault" />
+  </wsdl:message>
+  <wsdl:message name="IInforoomOnlineService_GetWaybills_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetWaybills" />
+  </wsdl:message>
+  <wsdl:message name="IInforoomOnlineService_GetWaybills_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetWaybillsResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInforoomOnlineService_GetWaybills_DoNotHavePermissionFaultFault_FaultMessage">
+    <wsdl:part xmlns:q6="http://schemas.datacontract.org/2004/07/Common.Service" name="detail" element="q6:DoNotHavePermissionFault" />
+  </wsdl:message>
+  <wsdl:message name="IInforoomOnlineService_GetWaybill_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetWaybill" />
+  </wsdl:message>
+  <wsdl:message name="IInforoomOnlineService_GetWaybill_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetWaybillResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInforoomOnlineService_GetWaybill_DoNotHavePermissionFaultFault_FaultMessage">
+    <wsdl:part xmlns:q7="http://schemas.datacontract.org/2004/07/Common.Service" name="detail" element="q7:DoNotHavePermissionFault" />
+  </wsdl:message>
+  <wsdl:message name="IInforoomOnlineService_GetAddresses_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetAddresses" />
+  </wsdl:message>
+  <wsdl:message name="IInforoomOnlineService_GetAddresses_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetAddressesResponse" />
+  </wsdl:message>
+  <wsdl:message name="IInforoomOnlineService_GetAddresses_DoNotHavePermissionFaultFault_FaultMessage">
+    <wsdl:part xmlns:q8="http://schemas.datacontract.org/2004/07/Common.Service" name="detail" element="q8:DoNotHavePermissionFault" />
   </wsdl:message>
   <wsdl:portType name="IInforoomOnlineService">
     <wsdl:operation name="GetOffers">
       <wsdl:input wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetOffers" message="tns:IInforoomOnlineService_GetOffers_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetOffersResponse" message="tns:IInforoomOnlineService_GetOffers_OutputMessage" />
-      <wsdl:fault wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetOffersApplicationExceptionFault" name="ApplicationExceptionFault" message="tns:IInforoomOnlineService_GetOffers_ApplicationExceptionFault_FaultMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetOffersDoNotHavePermissionFaultFault" name="DoNotHavePermissionFaultFault" message="tns:IInforoomOnlineService_GetOffers_DoNotHavePermissionFaultFault_FaultMessage" />
     </wsdl:operation>
     <wsdl:operation name="GetPriceList">
       <wsdl:input wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetPriceList" message="tns:IInforoomOnlineService_GetPriceList_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetPriceListResponse" message="tns:IInforoomOnlineService_GetPriceList_OutputMessage" />
-      <wsdl:fault wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetPriceListApplicationExceptionFault" name="ApplicationExceptionFault" message="tns:IInforoomOnlineService_GetPriceList_ApplicationExceptionFault_FaultMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetPriceListDoNotHavePermissionFaultFault" name="DoNotHavePermissionFaultFault" message="tns:IInforoomOnlineService_GetPriceList_DoNotHavePermissionFaultFault_FaultMessage" />
     </wsdl:operation>
     <wsdl:operation name="GetNamesFromCatalog">
       <wsdl:input wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetNamesFromCatalog" message="tns:IInforoomOnlineService_GetNamesFromCatalog_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetNamesFromCatalogResponse" message="tns:IInforoomOnlineService_GetNamesFromCatalog_OutputMessage" />
-      <wsdl:fault wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetNamesFromCatalogApplicationExceptionFault" name="ApplicationExceptionFault" message="tns:IInforoomOnlineService_GetNamesFromCatalog_ApplicationExceptionFault_FaultMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetNamesFromCatalogDoNotHavePermissionFaultFault" name="DoNotHavePermissionFaultFault" message="tns:IInforoomOnlineService_GetNamesFromCatalog_DoNotHavePermissionFaultFault_FaultMessage" />
     </wsdl:operation>
     <wsdl:operation name="PostOrder">
       <wsdl:input wsaw:Action="http://tempuri.org/IInforoomOnlineService/PostOrder" message="tns:IInforoomOnlineService_PostOrder_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IInforoomOnlineService/PostOrderResponse" message="tns:IInforoomOnlineService_PostOrder_OutputMessage" />
-      <wsdl:fault wsaw:Action="http://tempuri.org/IInforoomOnlineService/PostOrderApplicationExceptionFault" name="ApplicationExceptionFault" message="tns:IInforoomOnlineService_PostOrder_ApplicationExceptionFault_FaultMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IInforoomOnlineService/PostOrderDoNotHavePermissionFaultFault" name="DoNotHavePermissionFaultFault" message="tns:IInforoomOnlineService_PostOrder_DoNotHavePermissionFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetMinReqSettings">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetMinReqSettings" message="tns:IInforoomOnlineService_GetMinReqSettings_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetMinReqSettingsResponse" message="tns:IInforoomOnlineService_GetMinReqSettings_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetMinReqSettingsDoNotHavePermissionFaultFault" name="DoNotHavePermissionFaultFault" message="tns:IInforoomOnlineService_GetMinReqSettings_DoNotHavePermissionFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetWaybills">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetWaybills" message="tns:IInforoomOnlineService_GetWaybills_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetWaybillsResponse" message="tns:IInforoomOnlineService_GetWaybills_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetWaybillsDoNotHavePermissionFaultFault" name="DoNotHavePermissionFaultFault" message="tns:IInforoomOnlineService_GetWaybills_DoNotHavePermissionFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetWaybill">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetWaybill" message="tns:IInforoomOnlineService_GetWaybill_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetWaybillResponse" message="tns:IInforoomOnlineService_GetWaybill_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetWaybillDoNotHavePermissionFaultFault" name="DoNotHavePermissionFaultFault" message="tns:IInforoomOnlineService_GetWaybill_DoNotHavePermissionFaultFault_FaultMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAddresses">
+      <wsdl:input wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetAddresses" message="tns:IInforoomOnlineService_GetAddresses_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetAddressesResponse" message="tns:IInforoomOnlineService_GetAddresses_OutputMessage" />
+      <wsdl:fault wsaw:Action="http://tempuri.org/IInforoomOnlineService/GetAddressesDoNotHavePermissionFaultFault" name="DoNotHavePermissionFaultFault" message="tns:IInforoomOnlineService_GetAddresses_DoNotHavePermissionFaultFault_FaultMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="BasicHttpBinding_IInforoomOnlineService" type="tns:IInforoomOnlineService">
@@ -85,8 +142,8 @@
       <wsdl:output>
         <soap:body use="literal" />
       </wsdl:output>
-      <wsdl:fault name="ApplicationExceptionFault">
-        <soap:fault use="literal" name="ApplicationExceptionFault" namespace="" />
+      <wsdl:fault name="DoNotHavePermissionFaultFault">
+        <soap:fault use="literal" name="DoNotHavePermissionFaultFault" namespace="" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="GetPriceList">
@@ -97,8 +154,8 @@
       <wsdl:output>
         <soap:body use="literal" />
       </wsdl:output>
-      <wsdl:fault name="ApplicationExceptionFault">
-        <soap:fault use="literal" name="ApplicationExceptionFault" namespace="" />
+      <wsdl:fault name="DoNotHavePermissionFaultFault">
+        <soap:fault use="literal" name="DoNotHavePermissionFaultFault" namespace="" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="GetNamesFromCatalog">
@@ -109,8 +166,8 @@
       <wsdl:output>
         <soap:body use="literal" />
       </wsdl:output>
-      <wsdl:fault name="ApplicationExceptionFault">
-        <soap:fault use="literal" name="ApplicationExceptionFault" namespace="" />
+      <wsdl:fault name="DoNotHavePermissionFaultFault">
+        <soap:fault use="literal" name="DoNotHavePermissionFaultFault" namespace="" />
       </wsdl:fault>
     </wsdl:operation>
     <wsdl:operation name="PostOrder">
@@ -121,8 +178,56 @@
       <wsdl:output>
         <soap:body use="literal" />
       </wsdl:output>
-      <wsdl:fault name="ApplicationExceptionFault">
-        <soap:fault use="literal" name="ApplicationExceptionFault" namespace="" />
+      <wsdl:fault name="DoNotHavePermissionFaultFault">
+        <soap:fault use="literal" name="DoNotHavePermissionFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="GetMinReqSettings">
+      <soap:operation soapAction="http://tempuri.org/IInforoomOnlineService/GetMinReqSettings" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="DoNotHavePermissionFaultFault">
+        <soap:fault use="literal" name="DoNotHavePermissionFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="GetWaybills">
+      <soap:operation soapAction="http://tempuri.org/IInforoomOnlineService/GetWaybills" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="DoNotHavePermissionFaultFault">
+        <soap:fault use="literal" name="DoNotHavePermissionFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="GetWaybill">
+      <soap:operation soapAction="http://tempuri.org/IInforoomOnlineService/GetWaybill" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="DoNotHavePermissionFaultFault">
+        <soap:fault use="literal" name="DoNotHavePermissionFaultFault" namespace="" />
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="GetAddresses">
+      <soap:operation soapAction="http://tempuri.org/IInforoomOnlineService/GetAddresses" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+      <wsdl:fault name="DoNotHavePermissionFaultFault">
+        <soap:fault use="literal" name="DoNotHavePermissionFaultFault" namespace="" />
       </wsdl:fault>
     </wsdl:operation>
   </wsdl:binding>
