@@ -1,4 +1,3 @@
-﻿import file from Web.bake
 
 Global(
 	Project : "InforoomOnline",
@@ -10,4 +9,4 @@ task @Build, [@WebBuild]
 
 task @default, [@Build]
 
-task @deploy, [@DeployPipeline]
+task @deploy, ["deploy:pipeline"]
