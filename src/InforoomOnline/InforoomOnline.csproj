@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <Import Project="msbuild.gen.props" Condition="Exists('msbuild.gen.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -107,15 +107,15 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="InforoomOnlineService.cs" />
     <Compile Include="IInforoomOnlineService.cs" />
+    <Compile Include="InforoomOnlineService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Web.release.config">
+    <None Include="Web.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Web.config">
+    <None Include="Web.release.config">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
@@ -144,19 +144,19 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common.Models\Common.Models\Common.Models.csproj">
-      <Project>{80C9F352-5EED-41B2-989A-6628BCAF4D36}</Project>
+      <Project>{80c9f352-5eed-41b2-989a-6628bcaf4d36}</Project>
       <Name>Common.Models</Name>
     </ProjectReference>
     <ProjectReference Include="..\Common.MySql\Common.MySql\Common.MySql.csproj">
-      <Project>{8A680813-C83B-497A-85E6-E8F07B7D7650}</Project>
+      <Project>{8a680813-c83b-497a-85e6-e8f07b7d7650}</Project>
       <Name>Common.MySql</Name>
     </ProjectReference>
     <ProjectReference Include="..\Common.Service\Common.Service\Common.Service.csproj">
-      <Project>{42D52206-A0F4-4624-B3DA-D554DC6A5C09}</Project>
+      <Project>{42d52206-a0f4-4624-b3da-d554dc6a5c09}</Project>
       <Name>Common.Service</Name>
     </ProjectReference>
     <ProjectReference Include="..\Common.Tools\Common.Tools\Common.Tools.csproj">
-      <Project>{72AFCFE8-C9E9-45FA-9698-BEE896A517A3}</Project>
+      <Project>{72afcfe8-c9e9-45fa-9698-bee896a517a3}</Project>
       <Name>Common.Tools</Name>
     </ProjectReference>
   </ItemGroup>
