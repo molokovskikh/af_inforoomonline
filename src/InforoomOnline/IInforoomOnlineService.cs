@@ -22,6 +22,9 @@ namespace InforoomOnline
 		DataSet GetPriceList(string[] firmName);
 
 		[OperationContract, FaultContract(typeof(DoNotHavePermissionFault)), RowCalculator]
+		DataSet GetSupplierInfoById(int firmId);
+
+		[OperationContract, FaultContract(typeof(DoNotHavePermissionFault)), RowCalculator]
 		DataSet GetNamesFromCatalog(string[] name, string[] form, bool offerOnly, int limit, int selStart);
 
 		[OperationContract, FaultContract(typeof(DoNotHavePermissionFault))]
