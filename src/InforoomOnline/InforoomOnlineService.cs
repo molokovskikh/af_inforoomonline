@@ -185,6 +185,43 @@ from prices p
 			});
 		}
 
+		public DataSet GetSupplierInfoById(int firmId)
+		{
+			return With.Connection(c => {
+				var helper = new MySqlHelper(c);
+				using (GetPrices(c))
+				{
+					return SqlBuilder
+						.WithCommandText(@"
+select	p.FirmCode SupplierId,
+		p.PriceCode as PriceCode,
+		p.PriceName as PriceName,
+		p.PriceDate as PriceDate,
+		rd.ContactInfo,
+		rd.OperativeInfo,
+		0 as PublicUpCost,
+		p.DisabledByClient,
+		s.Name as FirmShortName,
+		s.FullName as FirmFullName,
+		rd.SupportPhone as RegionPhone,
+		(select c.contactText
+		from contacts.contact_groups cg
+		  join contacts.contacts c on cg.Id = c.ContactOwnerId
+		where s.ContactGroupOwnerId = cg.ContactGroupOwnerId
+			  and cg.Type = 0
+			  and c.Type = 1
+		limit 1) as Phone,
+		s.Address as Address
+from prices p
+	join Customers.Suppliers s on p.firmcode = s.Id
+		join usersettings.regionaldata rd on rd.firmcode = s.Id and rd.regioncode = p.regioncode")
+						.AddInCriteria("p.FirmCode", new int[] {firmId})
+						.ToCommand(helper)
+						.Fill();
+				}
+			});
+		}
+
 		public DataSet GetMinReqSettings()
 		{
 			return With.Connection(c => {

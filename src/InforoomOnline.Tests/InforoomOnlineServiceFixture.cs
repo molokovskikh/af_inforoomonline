@@ -67,6 +67,15 @@ namespace InforoomOnline.Tests
 		}
 
 		[Test]
+		public void GetSupplierInfo()
+		{
+			session.Transaction.Commit();
+			var priceList = service.GetSupplierInfoById(0);
+			Assert.That(priceList.Tables[0].Columns.Contains("Address"));
+			service.GetPriceList(new[] { "%а%" });
+		}
+
+		[Test]
 		public void PostOrder()
 		{
 			session.Transaction.Commit();
