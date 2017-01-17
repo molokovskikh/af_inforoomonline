@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using CassiniDev;
+using Common.MySql;
 using NUnit.Framework;
 
 namespace InforoomOnline.Tests
@@ -14,6 +15,7 @@ namespace InforoomOnline.Tests
 		{
 			server = new Server(54860, Path.GetFullPath(@"..\..\..\InforoomOnline"));
 			server.Start();
+			ConnectionHelper.DefaultConnectionStringName = "Main";
 			Test.Support.Setup.Initialize("Main");
 		}
 
