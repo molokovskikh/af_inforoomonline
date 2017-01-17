@@ -9,7 +9,7 @@ namespace InforoomOnline.Tests
 	{
 		private Server server;
 
-		[SetUp]
+		[OneTimeSetUp]
 		public void Setup()
 		{
 			server = new Server(54860, Path.GetFullPath(@"..\..\..\InforoomOnline"));
@@ -17,7 +17,7 @@ namespace InforoomOnline.Tests
 			Test.Support.Setup.Initialize("Main");
 		}
 
-		[TearDown]
+		[OneTimeTearDown]
 		public void Teardown()
 		{
 			if (server != null)
