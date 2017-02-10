@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <Import Project="msbuild.gen.props" Condition="Exists('msbuild.gen.props')" />
   <PropertyGroup>
@@ -39,7 +39,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -192,6 +192,10 @@
     <ProjectReference Include="..\Common.Models\Common.Models\Common.Models.csproj">
       <Project>{80c9f352-5eed-41b2-989a-6628bcaf4d36}</Project>
       <Name>Common.Models</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Common.MySql\Common.MySql\Common.MySql.csproj">
+      <Project>{8a680813-c83b-497a-85e6-e8f07b7d7650}</Project>
+      <Name>Common.MySql</Name>
     </ProjectReference>
     <ProjectReference Include="..\Common.Service\Common.Service.Tests\Common.Service.Tests.csproj">
       <Project>{cd94b599-2068-48c8-abfb-d60e86c33613}</Project>

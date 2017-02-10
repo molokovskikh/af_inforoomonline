@@ -7,6 +7,7 @@ using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Common.Models;
 using Common.Models.Repositories;
+using Common.MySql;
 using Common.Service.Interceptors;
 using Common.Service.Models;
 using log4net;
@@ -25,6 +26,7 @@ namespace InforoomOnline
 				XmlConfigurator.Configure();
 				GlobalContext.Properties["Version"] = Assembly.GetExecutingAssembly().GetName().Version;
 
+				ConnectionHelper.DefaultConnectionStringName = "Main";
 				var sessionFactoryHolder = new SessionFactoryHolder();
 				sessionFactoryHolder
 					.Configuration
